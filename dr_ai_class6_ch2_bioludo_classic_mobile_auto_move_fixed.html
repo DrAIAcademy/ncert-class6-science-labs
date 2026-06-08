@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BioLudo Classic Board | Dr AI Academy</title>
+<style>
+:root{
+  --panel:rgba(10,28,54,.96);
+  --cyan:#64f4ff; --gold:#ffe066; --green:#8cffc1; --red:#ff8aa0;
+  --text:#eef8ff; --muted:#b7cce5;
+  --cell:34px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;padding:0;font-family:Arial,Segoe UI,sans-serif;color:var(--text);
+  background:
+    radial-gradient(circle at 15% 10%,rgba(100,244,255,.16),transparent 26%),
+    radial-gradient(circle at 85% 10%,rgba(255,224,102,.14),transparent 26%),
+    linear-gradient(135deg,#061123,#123d82 60%,#071c34);
+  overflow-x:hidden;-webkit-text-size-adjust:100%;user-select:none;
+}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+.watermark{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.wm{position:absolute;color:rgba(255,255,255,.055);font-size:clamp(28px,4vw,54px);font-weight:1000;transform:rotate(-24deg);white-space:nowrap}
+.cornerMark{position:fixed;right:12px;bottom:12px;z-index:1000;pointer-events:none;color:rgba(255,255,255,.78);background:rgba(4,13,24,.45);border:1px solid rgba(255,255,255,.2);padding:7px 10px;border-radius:999px;font-weight:900}
+.wrap{max-width:1440px;margin:auto;padding:12px;position:relative;z-index:1}
+.panel{background:var(--panel);border:1px solid rgba(100,244,255,.25);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.hero{background:linear-gradient(180deg,rgba(18,61,130,.94),rgba(7,22,48,.97));position:relative;overflow:hidden}
+.hero:after{content:"🎲 🌿 🐾 🌍 🛡️ 🏆";position:absolute;right:18px;bottom:14px;font-size:32px;letter-spacing:8px;opacity:.22}
+.logo{position:absolute;right:14px;top:14px;background:rgba(0,0,0,.28);border:1px solid rgba(100,244,255,.3);border-radius:16px;padding:8px 11px;text-align:right}
+.logo b{display:block}.logo span{color:var(--cyan);font-size:.74rem;font-weight:900}
+.badge{display:inline-block;background:rgba(100,244,255,.12);border:1px solid rgba(100,244,255,.25);border-radius:999px;color:var(--cyan);font-weight:900;padding:8px 12px;font-size:.78rem}
+h1{font-size:clamp(1.8rem,5vw,3.6rem);line-height:1.04;margin:10px 0 8px;max-width:1050px}
+h2{margin:6px 0 10px}
+h3{margin:6px 0 10px}
+.sub{line-height:1.55;color:var(--muted);max-width:1080px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:0;border-radius:15px;padding:12px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,var(--cyan),#d9fbff);color:#061123;min-height:46px}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#fff3b0);color:#241400}
+.btn.dark{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff}
+
+.gameGrid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:12px;align-items:start}
+.leftCol{display:grid;gap:12px}
+.boardPanel{
+  border-radius:18px;overflow:hidden;
+  background:linear-gradient(180deg,#a7e8ff 0,#dff8ff 18%,#7bc86c 19%,#2f7a3a 45%,#6f4422 46%,#2d190e 100%);
+  border:1px solid rgba(255,255,255,.15);
+}
+.boardTop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px;position:relative;z-index:2}
+.sceneTitle,.labTag{background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:9px 12px;font-weight:900}
+.boardWrap{
+  width:max-content;max-width:100%;margin:6px auto 18px;padding:14px;border-radius:26px;
+  background:radial-gradient(ellipse at 50% 55%,#1f6a68,#12324c 68%,#0b172b);
+  border:2px solid rgba(255,255,255,.20);box-shadow:0 18px 34px rgba(0,0,0,.30);
+  overflow:auto;
+}
+.ludoBoard{
+  position:relative;
+  width:calc(var(--cell)*15);
+  height:calc(var(--cell)*15);
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(15,var(--cell));
+  grid-template-rows:repeat(15,var(--cell));
+  background:#f6fbff;
+  border:4px solid rgba(255,255,255,.88);
+  box-shadow:0 18px 30px rgba(0,0,0,.32);
+}
+.sq{
+  width:var(--cell);height:var(--cell);
+  border:1px solid rgba(0,0,0,.18);
+  background:#fff;
+  display:grid;place-items:center;
+  font-size:calc(var(--cell)*.42);
+  color:#0a1e36;
+  position:relative;
+}
+.sq.path{background:#fff}
+.sq.safe{background:#fff1a8}
+.sq.challenge{background:#b9f8ff}
+.sq.homeRow.green{background:#92f0b7}
+.sq.homeRow.red{background:#ffadc0}
+.sq.homeRow.blue{background:#a9e8ff}
+.sq.homeRow.yellow{background:#ffe889}
+.base{
+  position:absolute;
+  width:calc(var(--cell)*6);
+  height:calc(var(--cell)*6);
+  border:2px solid rgba(0,0,0,.2);
+  display:grid;place-items:center;
+}
+.base.green{left:0;top:0;background:#17b86d}
+.base.red{right:0;top:0;background:#ff5c7a}
+.base.blue{left:0;bottom:0;background:#1ebcff}
+.base.yellow{right:0;bottom:0;background:#ffd84d}
+.baseInner{
+  width:72%;height:72%;
+  border-radius:18px;background:rgba(255,255,255,.92);
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12%;
+  padding:12%;box-shadow:inset 0 0 12px rgba(0,0,0,.18)
+}
+.homeDot{
+  border-radius:50%;display:grid;place-items:center;font-size:calc(var(--cell)*.55);
+  border:2px solid rgba(0,0,0,.18);
+}
+.green .homeDot{background:#bdf8d4}.red .homeDot{background:#ffc5d2}.blue .homeDot{background:#c9f2ff}.yellow .homeDot{background:#fff2a6}
+.center{
+  position:absolute;
+  left:calc(var(--cell)*6);
+  top:calc(var(--cell)*6);
+  width:calc(var(--cell)*3);
+  height:calc(var(--cell)*3);
+  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+  background:conic-gradient(#ff5c7a 0 25%,#ffd84d 0 50%,#1ebcff 0 75%,#17b86d 0 100%);
+  display:grid;place-items:center;color:#fff;font-weight:1000;font-size:calc(var(--cell)*.65);
+  text-shadow:0 2px 4px rgba(0,0,0,.55);
+  z-index:3;
+}
+.arrow{
+  font-size:calc(var(--cell)*.45);
+  font-weight:1000;color:rgba(0,0,0,.55)
+}
+.token{
+  position:absolute;width:calc(var(--cell)*.74);height:calc(var(--cell)*.74);
+  border-radius:50%;display:grid;place-items:center;z-index:9;
+  border:3px solid rgba(255,255,255,.95);
+  box-shadow:0 8px 14px rgba(0,0,0,.32);
+  font-size:calc(var(--cell)*.42);
+  transition:left .32s ease, top .32s ease, transform .18s ease;
+}
+.token.current{box-shadow:0 0 0 5px rgba(255,224,102,.45),0 8px 14px rgba(0,0,0,.30);transform:scale(1.08)}
+.token.done{opacity:.95;filter:drop-shadow(0 0 12px rgba(140,255,193,.8))}
+.token.green{background:#17b86d}
+.token.red{background:#ff5c7a}
+.token.blue{background:#1ebcff}
+.token.yellow{background:#ffd84d;color:#2b1700}
+
+.cleanGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.controlPanel,.missionPanel,.playerPanel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px}
+.diceBox{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center}
+.dice{width:96px;height:96px;border-radius:24px;background:linear-gradient(135deg,#fff,#c6faff);color:#061123;display:grid;place-items:center;font-size:48px;font-weight:1000;box-shadow:0 12px 22px rgba(0,0,0,.25)}
+.actionGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.smallBtn{border:2px solid rgba(255,255,255,.22);background:rgba(255,224,102,.18);color:white;border-radius:999px;min-height:44px;font-weight:900}
+.smallBtn:disabled{opacity:.45;cursor:not-allowed}
+.goalGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.goalBox{border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);min-height:58px;padding:8px;text-align:center;font-weight:900}
+.goalBox b{display:block;color:var(--gold)}
+.playerList{display:grid;gap:8px}
+.playerCard{border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:10px;font-weight:900}
+.playerCard.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,224,102,.15)}
+.playerCard.done{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.12)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;color:var(--cyan);font-size:22px}
+.bar{height:14px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--green))}
+.infoBox{background:linear-gradient(180deg,rgba(100,244,255,.10),rgba(255,255,255,.04));border:1px solid rgba(100,244,255,.20);border-radius:16px;padding:12px;line-height:1.55;margin-top:10px}
+#coach{background:rgba(255,224,102,.10);border:1px solid rgba(255,224,102,.25);border-radius:14px;padding:10px;font-weight:800;animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(255,224,102,0)}50%{box-shadow:0 0 18px rgba(255,224,102,.18)}}
+.successFlash{animation:successFlash .85s ease-in-out}
+@keyframes successFlash{
+  0%{box-shadow:0 0 0 rgba(140,255,193,0)}
+  45%{box-shadow:0 0 0 8px rgba(140,255,193,.25),0 0 32px rgba(140,255,193,.45)}
+  100%{box-shadow:0 0 0 rgba(140,255,193,0)}
+}
+.token.movePulse{animation:movePulse .45s ease-in-out}
+@keyframes movePulse{
+  0%{transform:scale(1)}
+  45%{transform:scale(1.28) rotate(8deg)}
+  100%{transform:scale(1)}
+}
+.correctBurst{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+  z-index:2000;pointer-events:none;
+  background:rgba(10,28,54,.92);border:2px solid rgba(140,255,193,.75);
+  color:#fff;border-radius:22px;padding:18px 24px;font-size:clamp(1.4rem,5vw,2.6rem);
+  font-weight:1000;box-shadow:0 18px 40px rgba(0,0,0,.45);
+  animation:burst .95s ease forwards;text-align:center;
+}
+@keyframes burst{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
+  100%{opacity:0;transform:translate(-50%,-65%) scale(1)}
+}
+.winnerBanner{
+  position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);
+  z-index:2200;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,224,102,.98),rgba(255,255,255,.96));
+  color:#1d1200;border:3px solid rgba(255,255,255,.92);
+  border-radius:28px;padding:22px 28px;text-align:center;
+  font-weight:1000;box-shadow:0 24px 60px rgba(0,0,0,.48);
+  animation:winnerPop 2.3s ease forwards;
+  min-width:min(92vw,460px);
+}
+.winnerBanner .big{font-size:clamp(1.8rem,6vw,3.2rem);line-height:1.05}
+.winnerBanner .small{font-size:clamp(.95rem,3vw,1.25rem);margin-top:8px}
+@keyframes winnerPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(-4deg)}
+  16%{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(2deg)}
+  72%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}
+  100%{opacity:0;transform:translate(-50%,-60%) scale(.98)}
+}
+.optionGrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+.choice{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:11px;color:#fff;text-align:left;min-height:54px}
+.choice.correct{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.16)}
+.choice.wrong{border-color:rgba(255,138,160,.75);background:rgba(255,138,160,.16)}
+.log{max-height:170px;overflow:auto;background:rgba(0,0,0,.18);border-radius:14px;padding:10px;font-size:.92rem}
+.log p{margin:0 0 8px}
+.cert{display:none;text-align:center;border:2px solid var(--gold)}
+.cert input{width:100%;max-width:360px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;text-align:center}
+.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted)}
+.footer a{color:var(--cyan);font-weight:900;text-decoration:none}
+@media(max-width:1100px){
+  .gameGrid{grid-template-columns:1fr}
+  .logo{position:static;width:max-content;margin:0 0 10px auto}
+  .hero:after{display:none}
+}
+@media(max-width:740px){
+  :root{--cell:min(6vw,31px)}
+  .wrap{padding:6px}.panel{padding:10px;margin:8px 0;border-radius:16px}
+  h1{font-size:1.46rem}h2{font-size:1.08rem;margin:8px 0}h3{font-size:1rem;margin:8px 0}
+  .controls,.stats,.cleanGrid{grid-template-columns:1fr}
+  .stat{padding:8px}.stat b{font-size:18px}
+  .boardWrap{width:100%;padding:8px;border-radius:18px}
+  .ludoBoard{border-width:2px}
+  .baseInner{border-radius:12px;gap:8%;padding:10%}
+  .diceBox{grid-template-columns:1fr;text-align:center;justify-items:center}
+  .dice{width:78px;height:78px;font-size:40px}
+  .goalGrid,.actionGrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:430px){
+  :root{--cell:6.25vw}
+  .goalGrid,.actionGrid{grid-template-columns:1fr}
+  .token{border-width:2px}
+  .sq{font-size:10px}
+}
+@media print{
+  .hero,.gameGrid,.footer,.watermark,.cornerMark{display:none!important}
+  .cert{display:block!important;color:#111;background:#fff}
+  .cert input{color:#111;border:0}
+}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div class="watermark"><div class="wm" style="top:5%;left:-8%">Dr AI Academy</div><div class="wm" style="top:30%;left:35%">Dr AI Academy</div><div class="wm" style="top:55%;left:-5%">Dr AI Academy</div><div class="wm" style="top:78%;left:35%">Dr AI Academy</div></div>
+<div class="cornerMark">Dr AI Academy</div>
+
+<div class="wrap">
+<section class="panel hero">
+  <div class="logo"><b>Dr AI Academy</b><span>Classic Ludo Science Board</span></div>
+  <div class="badge">CLASS 6 • CHAPTER 2 • DIVERSITY IN THE LIVING WORLD</div>
+  <h1>BioLudo Classic:<br>The Real Ludo-Style Science Race</h1>
+  <p class="sub">A cleaner real-Ludo style board with four colored houses, a square track, home paths and centre goal. Controls are fully separated from the board to avoid overlap and make the design mobile-friendly.</p>
+  <div class="controls">
+    <button class="btn gold" onclick="BioLudo.start()">🎮 Start BioLudo</button>
+    <button class="btn dark" onclick="BioLudo.rollDice()">🎲 Roll Dice</button>
+    <button class="btn dark" onclick="BioLudo.hint()">💡 Dr AI Hint</button>
+    <button class="btn dark" onclick="BioLudo.toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+  </div>
+</section>
+
+<section class="gameGrid">
+  <div class="leftCol">
+    <section class="panel boardPanel">
+      <div class="boardTop">
+        <div class="sceneTitle">Classic BioLudo Board</div>
+        <div class="labTag" id="labTag">Current Team: Plant</div>
+      </div>
+      <div class="boardWrap">
+        <div class="ludoBoard" id="ludoBoard"></div>
+      </div>
+    </section>
+
+    <section class="panel cleanGrid">
+      <div class="controlPanel">
+        <h3>🎲 Dice Control</h3>
+        <div class="diceBox">
+          <div class="dice" id="dice">–</div>
+          <div>
+            <button class="btn gold" style="width:100%" onclick="BioLudo.rollDice()" id="rollBtn">Roll + Auto Move</button>
+            <div class="actionGrid">
+              <button class="smallBtn" onclick="BioLudo.moveToken()" id="moveBtn" disabled>Move</button>
+              <button class="smallBtn" onclick="BioLudo.skipTurn()">Skip</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="missionPanel">
+        <h3>🎯 Team Missions</h3>
+        <div class="goalGrid" id="goalGrid"></div>
+      </div>
+    </section>
+
+    <section class="panel playerPanel">
+      <h3>👥 Teams</h3>
+      <div class="playerList" id="playerList"></div>
+    </section>
+  </div>
+
+  <aside class="panel">
+    <h2 id="missionTitle">BioLudo Mission</h2>
+    <div class="stats">
+      <div class="stat"><b id="score">0</b>Score</div>
+      <div class="stat"><b id="turnNo">1</b>Turn</div>
+      <div class="stat"><b id="finished">0/4</b>Home</div>
+    </div>
+    <div class="bar"><span id="progressBar"></span></div>
+    <div class="infoBox" id="winnerBox" style="display:none;border-color:rgba(255,224,102,.65);background:rgba(255,224,102,.12)">
+      <b>🏆 Winner</b>
+      <p id="winnerText">No winner yet.</p>
+    </div>
+
+    <div class="infoBox">
+      <h3>🤖 Dr AI Live Guide</h3>
+      <p id="coach">Roll the dice. Move the current team token. Answer the question on concept cells.</p>
+    </div>
+
+    <div class="infoBox">
+      <h3>📓 Game Notes</h3>
+      <p id="storyText">Each team represents an important part of the chapter.</p>
+      <p><b>Latest:</b> <span id="latestScan">Ready to play.</span></p>
+      <p><b>Mobile mode:</b> dice roll automatically moves the current team.</p>
+    </div>
+
+    <div class="infoBox">
+      <b>How to Play</b>
+      <p>Roll dice → A team opens from base only when 1 or 6 comes. Move token → If you land on ❓ cell, answer one question from a larger chapter-wise science question bank. Reach the centre to complete the team.</p>
+    </div>
+
+    <div class="infoBox">
+      <b>Challenge Question</b>
+      <p id="quizQuestion">Roll and move to unlock one question from the 60-question bank.</p>
+      <div class="optionGrid" id="quizOptions"></div>
+    </div>
+
+    <div class="infoBox">
+      <b>Science Result</b>
+      <p id="concept">Race to the BioVerse Centre while revising the chapter.</p>
+    </div>
+
+    <div class="infoBox">
+      <b>Game Log</b>
+      <div class="log" id="log"></div>
+    </div>
+  </aside>
+</section>
+
+<section class="panel cert" id="certificate">
+  <div style="font-size:54px">🎲🌍🏅</div><h2>Certificate of BioLudo Classic Mastery</h2>
+  <p>This certifies that</p><input placeholder="Enter Student Name">
+  <p>has completed <b>BioLudo Classic: The Real Ludo-Style Science Race</b></p>
+  <p id="certificateWinnerLine"><b>Winner:</b> First team to reach the BioVerse Centre</p>
+  <p>Skills: biodiversity • classification • plant features • animal movement • habitat • adaptation • roots • venation • conservation</p>
+  <p><b>Developed by Dr AI Academy</b></p><button class="btn gold" onclick="window.print()">Print / Save Certificate</button>
+</section>
+
+<footer class="panel footer">
+  <div>Developed by <b>Dr AI Academy</b> • Class 6 Science ludo-style game lab</div>
+  <div><a href="https://courses.draiacademy.com" target="_blank">AI Courses @ Dr AI Academy</a></div>
+</footer>
+</div>
+
+<script>
+(function(){
+const G={voice:true,score:0,current:0,dice:0,canMove:false,turn:1,players:[],currentQuestion:null,winner:null,autoMove:true};
+const basePlayers=[
+ {id:'plant',name:'Plant Team',icon:'🌿',color:'green',pos:-1,done:false,goal:'Plant features and classification.'},
+ {id:'animal',name:'Animal Team',icon:'🐾',color:'red',pos:-1,done:false,goal:'Animal movement and body parts.'},
+ {id:'habitat',name:'Habitat Team',icon:'🌍',color:'blue',pos:-1,done:false,goal:'Habitat and adaptation.'},
+ {id:'conserve',name:'Conservation Team',icon:'🛡️',color:'yellow',pos:-1,done:false,goal:'Biodiversity protection.'}
+];
+
+// classic-looking outer square track around ludo board
+const path=[
+ [6,0],[7,0],[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],
+ [9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[14,7],[14,8],
+ [13,8],[12,8],[11,8],[10,8],[9,8],[8,9],[8,10],[8,11],[8,12],[8,13],[8,14],
+ [7,14],[6,14],[6,13],[6,12],[6,11],[6,10],[6,9],
+ [5,8],[4,8],[3,8],[2,8],[1,8],[0,8],[0,7],[0,6],
+ [1,6],[2,6],[3,6],[4,6],[5,6],[6,5],[6,4],[6,3],[6,2],[6,1]
+];
+const safeIdx=[0,13,26,39];
+const challengeIdx=[4,10,17,23,31,36,44,48];
+const coloredHomeRows={
+ green:[[7,1],[7,2],[7,3],[7,4],[7,5]],
+ red:[[13,7],[12,7],[11,7],[10,7],[9,7]],
+ blue:[[1,7],[2,7],[3,7],[4,7],[5,7]],
+ yellow:[[7,13],[7,12],[7,11],[7,10],[7,9]]
+};
+const startIndex={green:0,red:13,blue:39,yellow:26};
+const questions={"plant": [{"q": "Which plant group has soft green stem?", "a": "Herb", "o": ["Herb", "Fish", "Tiger"], "c": "Herbs are small plants with soft green stems."}, {"q": "Reticulate venation usually links with:", "a": "Taproot", "o": ["Taproot", "Fins", "Wings"], "c": "Reticulate venation commonly links with taproot."}, {"q": "A seed with two cotyledons is:", "a": "Dicot", "o": ["Dicot", "Monocot", "Stone"], "c": "Dicot seeds have two cotyledons."}, {"q": "Which plant has a thick woody trunk?", "a": "Tree", "o": ["Tree", "Herb", "Fish"], "c": "Trees are tall plants with thick woody trunks."}, {"q": "Which plant usually has branches near the base?", "a": "Shrub", "o": ["Shrub", "Bird", "Stone"], "c": "Shrubs are medium-sized bushy plants with branches near the base."}, {"q": "Pumpkin plant is usually classified as:", "a": "Creeper", "o": ["Creeper", "Tree", "Animal"], "c": "Creepers have weak stems and spread on the ground."}, {"q": "Pea plant climbs with support. It is a:", "a": "Climber", "o": ["Climber", "Fish", "Stone"], "c": "Climbers have weak stems and need support to grow upward."}, {"q": "Parallel venation means veins are:", "a": "Side by side", "o": ["Side by side", "In a net-like pattern", "Absent"], "c": "Parallel venation has veins running side by side."}, {"q": "Network-like leaf veins are called:", "a": "Reticulate venation", "o": ["Reticulate venation", "Parallel venation", "Fibrous root"], "c": "Reticulate venation forms a network-like pattern."}, {"q": "Which root has one main root with side branches?", "a": "Taproot", "o": ["Taproot", "Fibrous root", "Leaf"], "c": "Taproot has one main root and smaller side roots."}, {"q": "Which root has many thin roots from the base?", "a": "Fibrous root", "o": ["Fibrous root", "Taproot", "Stem"], "c": "Fibrous root has many similar thin roots arising from the base."}, {"q": "Maize seed is commonly a:", "a": "Monocot", "o": ["Monocot", "Dicot", "Animal"], "c": "Maize is a monocot seed with one cotyledon."}, {"q": "Gram seed is commonly a:", "a": "Dicot", "o": ["Dicot", "Monocot", "Fish"], "c": "Gram seed is dicot because it has two cotyledons."}, {"q": "The baby plant inside a seed is called:", "a": "Embryo", "o": ["Embryo", "Gills", "Hooves"], "c": "Embryo is the baby plant inside the seed."}, {"q": "The outer covering of a seed is called:", "a": "Seed coat", "o": ["Seed coat", "Wing", "Scale"], "c": "Seed coat protects the seed."}], "animal": [{"q": "Fish swims mainly using:", "a": "Fins and tail", "o": ["Fins and tail", "Taproot", "Flower"], "c": "Fish uses fins and tail to swim."}, {"q": "Bird flies mainly using:", "a": "Wings", "o": ["Wings", "Roots", "Stem"], "c": "Birds use wings for flying."}, {"q": "Snake moves without legs by:", "a": "Body muscles and scales", "o": ["Body muscles and scales", "Leaves", "Flowers"], "c": "Snake slithers using body muscles and scales."}, {"q": "Ant moves using:", "a": "Six legs", "o": ["Six legs", "Fins", "Taproot"], "c": "Ants move using six legs."}, {"q": "Frog jumps mainly using:", "a": "Strong hind legs", "o": ["Strong hind legs", "Wings", "Roots"], "c": "Frog has strong hind legs for jumping and swimming."}, {"q": "Horse runs using:", "a": "Four legs", "o": ["Four legs", "Fins", "Leaves"], "c": "Horse uses four strong legs for walking and running."}, {"q": "Which animal is adapted for swimming?", "a": "Fish", "o": ["Fish", "Mango tree", "Stone"], "c": "Fish has body features such as fins and streamlined body for swimming."}, {"q": "Which body part helps bird perch and walk?", "a": "Legs", "o": ["Legs", "Gills", "Roots"], "c": "Birds use legs for walking and perching."}, {"q": "Which animal shows slithering movement?", "a": "Snake", "o": ["Snake", "Rose", "Pea plant"], "c": "Snake moves by slithering."}, {"q": "Which animal can live on land and in water?", "a": "Frog", "o": ["Frog", "Camel", "Crow only"], "c": "Frog is adapted to both land and water."}, {"q": "Butterfly moves mainly by:", "a": "Flying", "o": ["Flying", "Swimming only", "No movement"], "c": "Butterfly uses wings to fly."}, {"q": "Animals move from place to place mainly for:", "a": "Food and safety", "o": ["Food and safety", "Making roots", "Making leaves"], "c": "Movement helps animals find food, shelter and safety."}, {"q": "A streamlined body is useful for:", "a": "Swimming", "o": ["Swimming", "Climbing trees only", "Growing roots"], "c": "Streamlined body reduces resistance in water."}, {"q": "Which structure helps fish breathe in water?", "a": "Gills", "o": ["Gills", "Wings", "Seed coat"], "c": "Gills help fish breathe in water."}, {"q": "Which animal uses muscular body and scales to move?", "a": "Snake", "o": ["Snake", "Fish", "Mango"], "c": "Snake uses body muscles and scales for movement."}], "habitat": [{"q": "Camel is adapted to which habitat?", "a": "Desert", "o": ["Desert", "Pond", "Snow only"], "c": "Camel has desert adaptations."}, {"q": "Fish breathes in water using:", "a": "Gills", "o": ["Gills", "Hump", "Hooves"], "c": "Gills help fish breathe in water."}, {"q": "Adaptations help organisms:", "a": "Survive in habitat", "o": ["Survive in habitat", "Become stones", "Lose body parts"], "c": "Adaptations help survival in habitats."}, {"q": "A habitat means:", "a": "Natural home of an organism", "o": ["Natural home of an organism", "Only school room", "Only toy box"], "c": "Habitat is the natural home of an organism."}, {"q": "Camel has broad padded feet mainly to:", "a": "Walk on sand", "o": ["Walk on sand", "Fly in air", "Breathe in water"], "c": "Broad padded feet help camel walk on desert sand."}, {"q": "Tiger stripes are useful for:", "a": "Camouflage", "o": ["Camouflage", "Breathing underwater", "Storing water"], "c": "Tiger stripes help it blend with forest grass and shadows."}, {"q": "Polar bear is protected from cold by:", "a": "Thick fur and fat layer", "o": ["Thick fur and fat layer", "Gills", "Thin leaves"], "c": "Thick fur and fat layer help polar bear survive cold."}, {"q": "Frog needs moist surroundings because:", "a": "It is adapted to land and water", "o": ["It is adapted to land and water", "It is a tree", "It has woody trunk"], "c": "Frog can live both on land and near water."}, {"q": "Aquatic habitat means:", "a": "Water habitat", "o": ["Water habitat", "Desert habitat", "Only mountain road"], "c": "Aquatic habitat is a water-based habitat."}, {"q": "Desert animals face the problem of:", "a": "Heat and water scarcity", "o": ["Heat and water scarcity", "Too much snow", "No sunlight at all"], "c": "Desert has heat and less available water."}, {"q": "Forest habitat provides animals with:", "a": "Food and shelter", "o": ["Food and shelter", "Only plastic", "Only metal"], "c": "Forests provide food, shelter and breeding places."}, {"q": "Camouflage helps animals to:", "a": "Hide or blend with surroundings", "o": ["Hide or blend with surroundings", "Become non-living", "Grow cotyledons"], "c": "Camouflage is an adaptation for protection or hunting."}, {"q": "Which habitat suits fish best?", "a": "Pond or river", "o": ["Pond or river", "Dry desert only", "Tree trunk only"], "c": "Fish are adapted to aquatic habitats like ponds and rivers."}, {"q": "Which animal is best adapted to desert?", "a": "Camel", "o": ["Camel", "Fish", "Frog only"], "c": "Camel has adaptations for desert life."}, {"q": "The place where an organism lives naturally is its:", "a": "Habitat", "o": ["Habitat", "Cotyledon", "Venation"], "c": "Habitat is the natural living place of an organism."}], "conserve": [{"q": "Conservation protects:", "a": "Living beings and habitats", "o": ["Living beings and habitats", "Only roads", "Only plastic"], "c": "Conservation protects biodiversity and habitats."}, {"q": "Sacred groves are:", "a": "Community-protected forest patches", "o": ["Community-protected forest patches", "Plastic dumps", "Empty roads"], "c": "Sacred groves help conserve local biodiversity."}, {"q": "Project Tiger helps protect:", "a": "Tiger and forest habitat", "o": ["Tiger and forest habitat", "Only buildings", "Only traffic"], "c": "Project Tiger protects tigers and their habitat."}, {"q": "Biodiversity means:", "a": "Variety of living beings", "o": ["Variety of living beings", "Only one species", "Only stones"], "c": "Biodiversity means variety of plants, animals and other living beings."}, {"q": "Deforestation means:", "a": "Cutting or clearing forests", "o": ["Cutting or clearing forests", "Planting forests", "Cleaning water"], "c": "Deforestation reduces forest habitat and biodiversity."}, {"q": "River pollution mainly harms:", "a": "Aquatic life", "o": ["Aquatic life", "Only mountains", "Only desert sand"], "c": "Polluted water harms fish, frogs and aquatic plants."}, {"q": "Best school action for biodiversity is:", "a": "Plant native trees and reduce waste", "o": ["Plant native trees and reduce waste", "Break nests", "Waste water daily"], "c": "Native plants and less waste support local biodiversity."}, {"q": "Protected areas help wildlife by:", "a": "Providing safe habitat", "o": ["Providing safe habitat", "Removing all food", "Increasing pollution"], "c": "Protected areas reduce threats and provide safe habitats."}, {"q": "Why should we not disturb nests?", "a": "Birds need nests for safety and young ones", "o": ["Birds need nests for safety and young ones", "Nests are non-living only", "Nests create pollution"], "c": "Nests protect eggs and young birds."}, {"q": "A local pond should be protected because:", "a": "It supports many living beings", "o": ["It supports many living beings", "It is only for plastic", "It has no life"], "c": "Ponds support fish, frogs, plants and microorganisms."}, {"q": "Using less plastic helps:", "a": "Reduce pollution", "o": ["Reduce pollution", "Increase water waste", "Destroy habitats"], "c": "Reducing plastic helps reduce pollution in habitats."}, {"q": "Community conservation means:", "a": "People together protect nature", "o": ["People together protect nature", "People cut all trees", "People pollute rivers"], "c": "Community action can protect local biodiversity."}, {"q": "Why are forests important?", "a": "They provide habitat to many species", "o": ["They provide habitat to many species", "They remove all animals", "They make only plastic"], "c": "Forests are homes for many plants and animals."}, {"q": "Which action helps birds and butterflies around school?", "a": "Growing native plants", "o": ["Growing native plants", "Removing all trees", "Breaking flowers"], "c": "Native plants provide food and shelter for local life."}, {"q": "Conservation is important for:", "a": "Future generations", "o": ["Future generations", "Only today’s game", "Only machines"], "c": "Conservation protects nature for present and future generations."}]};
+function $(id){return document.getElementById(id)}
+function say(t){if(!G.voice)return;try{if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=.94;u.pitch=1.04;speechSynthesis.speak(u)}}catch(e){}}
+function coach(t){$('coach').textContent=t;say(t)}
+function log(t){$('log').innerHTML='<p>'+t+'</p>'+$('log').innerHTML}
+function audioCtx(){
+  try{
+    const C=window.AudioContext||window.webkitAudioContext;
+    if(!C)return null;
+    if(!window.__bioLudoAudio)window.__bioLudoAudio=new C();
+    return window.__bioLudoAudio;
+  }catch(e){return null}
+}
+function tone(freq,dur,type='sine',vol=.08){
+  const ctx=audioCtx(); if(!ctx)return;
+  const osc=ctx.createOscillator(), gain=ctx.createGain();
+  osc.type=type; osc.frequency.setValueAtTime(freq,ctx.currentTime);
+  gain.gain.setValueAtTime(vol,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(); osc.stop(ctx.currentTime+dur);
+}
+function successSound(){
+  tone(660,.13,'sine',.08);
+  setTimeout(()=>tone(880,.14,'sine',.08),115);
+  setTimeout(()=>tone(1046,.18,'sine',.07),240);
+}
+function whooshSound(){
+  const ctx=audioCtx(); 
+  if(!ctx){ tone(220,.08,'sawtooth',.05); setTimeout(()=>tone(360,.1,'sawtooth',.05),80); return; }
+  const osc=ctx.createOscillator(), gain=ctx.createGain(), filter=ctx.createBiquadFilter();
+  osc.type='sawtooth';
+  osc.frequency.setValueAtTime(180,ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(720,ctx.currentTime+.22);
+  filter.type='lowpass';
+  filter.frequency.setValueAtTime(700,ctx.currentTime);
+  filter.frequency.exponentialRampToValueAtTime(2200,ctx.currentTime+.22);
+  gain.gain.setValueAtTime(.001,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.07,ctx.currentTime+.04);
+  gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.25);
+  osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+  osc.start(); osc.stop(ctx.currentTime+.26);
+}
+function showCorrectBurst(text='✅ Correct!'){
+  const div=document.createElement('div');
+  div.className='correctBurst';
+  div.innerHTML=text+'<br><span style="font-size:.45em;color:#8cffc1">Great science reasoning!</span>';
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(),1000);
+  const board=$('ludoBoard');
+  if(board){board.classList.add('successFlash');setTimeout(()=>board.classList.remove('successFlash'),900)}
+}
+function winnerSound(){
+  tone(523,.12,'sine',.09);
+  setTimeout(()=>tone(659,.12,'sine',.09),110);
+  setTimeout(()=>tone(784,.15,'sine',.09),220);
+  setTimeout(()=>tone(1046,.25,'sine',.08),370);
+}
+function showWinnerBanner(player){
+  const div=document.createElement('div');
+  div.className='winnerBanner';
+  div.innerHTML='<div class="big">🏆 '+player.name+' Wins!</div><div class="small">First team to enter BioVerse Centre</div>';
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(),2400);
+  const box=$('winnerBox');
+  if(box){
+    box.style.display='block';
+    $('winnerText').textContent=player.icon+' '+player.name+' entered the centre first and is the winner.';
+  }
+  const cert=$('certificateWinnerLine');
+  if(cert)cert.innerHTML='<b>Winner:</b> '+player.icon+' '+player.name+' — first team to reach the BioVerse Centre';
+}
+function pulseToken(){
+  setTimeout(()=>{
+    const token=document.querySelector('.token.current');
+    if(token){token.classList.add('movePulse');setTimeout(()=>token.classList.remove('movePulse'),480)}
+  },70);
+}
+
+function start(){
+  G.score=0;G.current=0;G.dice=0;G.canMove=false;G.turn=1;G.currentQuestion=null;G.winner=null;
+  G.players=JSON.parse(JSON.stringify(basePlayers));
+  if($('winnerBox'))$('winnerBox').style.display='none';
+  if($('certificateWinnerLine'))$('certificateWinnerLine').innerHTML='<b>Winner:</b> First team to reach the BioVerse Centre';
+  $('dice').textContent='–';$('quizQuestion').textContent='Roll and move to unlock one question from the 60-question bank.';$('quizOptions').innerHTML='';$('certificate').style.display='none';
+  $('rollBtn').disabled=false;$('moveBtn').disabled=true;
+  drawBoard();drawPlayers();drawGoals();update();
+  coach('BioLudo Classic started. Plant Team begins. Roll the dice.');
+  log('<b>Game started:</b> Classic Ludo-style science race.');
+}
+function drawBoard(){
+  const board=$('ludoBoard');
+  let html='';
+  // 15x15 grid background
+  for(let y=0;y<15;y++)for(let x=0;x<15;x++){
+    let cls='sq';
+    let content='';
+    const pIndex=path.findIndex(p=>p[0]===x&&p[1]===y);
+    if(pIndex>=0){cls+=' path'; content='';}
+    if(safeIdx.includes(pIndex)){cls+=' safe'; content='⭐';}
+    if(challengeIdx.includes(pIndex)){cls+=' challenge'; content='❓';}
+    Object.keys(coloredHomeRows).forEach(color=>{
+      if(coloredHomeRows[color].some(p=>p[0]===x&&p[1]===y)){cls+=' homeRow '+color; content='➜';}
+    });
+    html+='<div class="'+cls+'" style="grid-column:'+(x+1)+';grid-row:'+(y+1)+'">'+content+'</div>';
+  }
+  html+='<div class="base green"><div class="baseInner"><div class="homeDot">🌿</div><div class="homeDot">🌿</div><div class="homeDot">🌿</div><div class="homeDot">🌿</div></div></div>';
+  html+='<div class="base red"><div class="baseInner"><div class="homeDot">🐾</div><div class="homeDot">🐾</div><div class="homeDot">🐾</div><div class="homeDot">🐾</div></div></div>';
+  html+='<div class="base blue"><div class="baseInner"><div class="homeDot">🌍</div><div class="homeDot">🌍</div><div class="homeDot">🌍</div><div class="homeDot">🌍</div></div></div>';
+  html+='<div class="base yellow"><div class="baseInner"><div class="homeDot">🛡️</div><div class="homeDot">🛡️</div><div class="homeDot">🛡️</div><div class="homeDot">🛡️</div></div></div>';
+  html+='<div class="center">🏆</div>';
+  G.players.forEach((pl,idx)=>{
+    const xy=getTokenXY(pl,idx);
+    const cur=idx===G.current && !pl.done?' current':'';
+    const done=pl.done?' done':'';
+    html+='<button class="token '+pl.color+cur+done+'" style="left:'+xy.left+'px;top:'+xy.top+'px" onclick="BioLudo.tokenTap('+idx+')">'+pl.icon+'</button>';
+  });
+  board.innerHTML=html;
+}
+function getTokenXY(pl,idx){
+  const cell=cssCell(); let x,y;
+  if(pl.done){
+    const offsets={green:[6.05,6.05],red:[7.95,6.05],blue:[6.05,7.95],yellow:[7.95,7.95]};
+    [x,y]=offsets[pl.color];
+  }else if(pl.pos<0){
+    const basePos={green:[1.55,1.55],red:[10.55,1.55],blue:[1.55,10.55],yellow:[10.55,10.55]};
+    const dot=[[0,0],[2,0],[0,2],[2,2]][idx%4];
+    x=basePos[pl.color][0]+dot[0]; y=basePos[pl.color][1]+dot[1];
+  }else{
+    let p;
+    if(pl.pos<path.length){
+      const shifted=(startIndex[pl.color]+pl.pos)%path.length;
+      p=path[shifted];
+    }else{
+      const homeStep=Math.min(pl.pos-path.length,4);
+      p=coloredHomeRows[pl.color][homeStep];
+    }
+    x=p[0]+.13+(idx%2)*.08; y=p[1]+.13+(Math.floor(idx/2)%2)*.08;
+  }
+  return {left:x*cell,top:y*cell};
+}
+function cssCell(){
+  const board=$('ludoBoard');
+  if(board && board.getBoundingClientRect){
+    const w=board.getBoundingClientRect().width;
+    if(w && w>100)return w/15;
+  }
+  const raw=getComputedStyle(document.documentElement).getPropertyValue('--cell').trim();
+  const n=parseFloat(raw);
+  return n || 34;
+}
+function rollDice(){
+  const p=G.players[G.current];
+  if(p.done){nextTurn();return}
+  if(G.canMove){coach('Move is already pending. Moving now.'); tokenTap(G.current); return}
+  G.dice=Math.floor(Math.random()*6)+1;
+  $('dice').textContent=G.dice;
+  G.canMove=true;
+  $('moveBtn').disabled=false;
+  $('rollBtn').disabled=true;
+
+  if(p.pos<0 && G.dice!==1 && G.dice!==6){
+    coach(p.name+' rolled '+G.dice+'. Token is in base and opens only on 1 or 6. Turn will pass.');
+    log('<b>'+p.name+'</b> rolled '+G.dice+'. Base locked, needs 1 or 6.');
+  }else if(p.pos<0){
+    coach(p.name+' rolled '+G.dice+'. Token opens from base automatically.');
+    log('<b>'+p.name+'</b> rolled '+G.dice+' and opens from base.');
+  }else{
+    coach(p.name+' rolled '+G.dice+'. Moving automatically.');
+    log('<b>'+p.name+'</b> rolled '+G.dice+'.');
+  }
+
+  setTimeout(()=>tokenTap(G.current),520);
+}
+function moveToken(){tokenTap(G.current)}
+function tokenTap(idx){
+  if(idx!==G.current){coach('It is '+G.players[G.current].name+' turn.');return}
+  if(!G.canMove){coach('Roll the dice first.');return}
+  const p=G.players[G.current];
+  if(p.done){nextTurn();return}
+  if(p.pos<0){
+    if(G.dice!==1 && G.dice!==6){
+      $('latestScan').textContent=p.name+' stayed in base because dice was '+G.dice+'. Need 1 or 6.';
+      coach(p.name+' stayed in base. It opens only when 1 or 6 comes. Passing turn.');
+      tone(180,.12,'sine',.05);
+      log('<b>Base locked:</b> '+p.name+' rolled '+G.dice+'. Need 1 or 6 to open.');
+      endMove(true);
+      return;
+    }
+    p.pos=0;
+    $('latestScan').textContent=p.name+' opened from base with '+G.dice+'.';
+    coach(p.name+' opened from base. Whoosh!');
+  } else {
+    p.pos+=G.dice;
+    $('latestScan').textContent=p.name+' moved '+G.dice+' steps.';
+    coach(p.name+' moved '+G.dice+' steps. Whoosh!');
+  }
+  whooshSound();
+  pulseToken();
+  const finishPos=path.length+5;
+  if(p.pos>=finishPos){
+    p.done=true;G.score+=300;
+    if(!G.winner){
+      G.winner=p.id;
+      winnerSound();
+      showWinnerBanner(p);
+      coach('Winner announced! '+p.name+' entered the BioVerse Centre first.');
+      log('<b>🏆 Winner:</b> '+p.name+' entered BioVerse Centre first.');
+    }else{
+      successSound();
+      coach(p.name+' reached the centre.');
+      log('<b>Centre:</b> '+p.name+' reached BioVerse Centre.');
+    }
+    endMove(false);checkWin();return;
+  }
+  G.score+=G.dice*10;
+  drawBoard();update();
+  const realPos=(startIndex[p.color]+Math.min(p.pos,path.length-1))%path.length;
+  if(p.pos<path.length && challengeIdx.includes(realPos))openQuestion(p);
+  else if(p.pos<path.length && safeIdx.includes(realPos)){
+    G.score+=50;$('concept').textContent='Safe star cell: science observation protects your progress.';
+    coach('Safe star cell. Bonus points added.');log('<b>Safe cell:</b> '+p.name+' got bonus.');endMove(true);
+  }else{
+    $('concept').textContent='Concept move: revise '+p.goal;
+    coach('Good move. '+p.goal);endMove(true);
+  }
+}
+function openQuestion(p){
+  const list=questions[p.id];const q=list[Math.floor(Math.random()*list.length)];
+  G.currentQuestion=q;
+  $('quizQuestion').textContent=q.q;
+  let html='';q.o.forEach(o=>html+='<button class="choice" onclick="BioLudo.answerQuiz(&quot;'+o+'&quot;)">'+o+'</button>');
+  $('quizOptions').innerHTML=html;
+  $('concept').textContent='Challenge cell: answer correctly for bonus points.';
+  coach('Challenge question unlocked.');
+  $('moveBtn').disabled=true;
+}
+function answerQuiz(ans){
+  const q=G.currentQuestion;
+  document.querySelectorAll('#quizOptions .choice').forEach(b=>{
+    if(b.textContent.trim()===q.a)b.classList.add('correct');
+    else if(b.textContent.trim()===ans&&ans!==q.a)b.classList.add('wrong');
+  });
+  if(ans===q.a){
+    G.score+=130;
+    $('concept').textContent=q.c;
+    successSound();
+    showCorrectBurst('✅ Correct!');
+    coach('Excellent! Correct answer. '+q.c);
+    log('<b>Correct:</b> '+q.c);
+  }else{
+    G.score=Math.max(0,G.score-40);$('concept').textContent='Correct answer: '+q.a+'. '+q.c;coach('Not correct. Correct answer is '+q.a+'.');
+  }
+  G.currentQuestion=null;$('quizOptions').innerHTML='';
+  endMove(true);
+}
+function endMove(autoNext){
+  G.canMove=false;$('moveBtn').disabled=true;$('rollBtn').disabled=false;
+  drawBoard();drawPlayers();drawGoals();update();
+  if(autoNext)setTimeout(nextTurn,500);
+}
+function nextTurn(){
+  let tries=0;
+  do{G.current=(G.current+1)%G.players.length;tries++}while(G.players[G.current].done && tries<10);
+  G.turn++;
+  $('labTag').textContent='Current Team: '+G.players[G.current].name.replace(' Team','');
+  coach(G.players[G.current].name+' turn. Roll the dice.');
+  drawBoard();drawPlayers();update();
+}
+function skipTurn(){
+  if(G.canMove){G.canMove=false;$('moveBtn').disabled=true;$('rollBtn').disabled=false}
+  coach(G.players[G.current].name+' skipped. Next team.');
+  nextTurn();
+}
+function checkWin(){
+  const done=G.players.filter(p=>p.done).length;
+  if(done===G.players.length){
+    $('certificate').style.display='block';
+    coach('Excellent. All teams reached BioVerse Centre. Certificate unlocked. Winner remains the first team that entered the centre.');
+    $('certificate').scrollIntoView({behavior:'smooth'});
+  }
+}
+function drawPlayers(){
+  let html='';
+  G.players.forEach((p,idx)=>{
+    const pos=p.done?'Centre':(p.pos<0?'Base':(Math.min(p.pos,path.length+5)+1)+'/'+(path.length+6));
+    html+='<div class="playerCard '+(idx===G.current?'active ':'')+(p.done?'done':'')+'"><b>'+p.icon+' '+p.name+'</b><br>Position: '+pos+'</div>';
+  });
+  $('playerList').innerHTML=html;
+}
+function drawGoals(){
+  let html='';
+  G.players.forEach(p=>html+='<div class="goalBox"><b>'+p.icon+' '+(p.done?'Done':'Race')+'</b>'+p.goal+'</div>');
+  $('goalGrid').innerHTML=html;
+}
+function update(){
+  const done=G.players.filter(p=>p.done).length;
+  $('score').textContent=G.score;$('turnNo').textContent=G.turn;$('finished').textContent=done+'/'+G.players.length;
+  $('progressBar').style.width=Math.round(done/G.players.length*100)+'%';
+}
+function hint(){
+  const p=G.players[G.current];
+  if(G.canMove)coach('Hint: press Move to move '+p.name+' by '+G.dice+' steps.');
+  else coach('Hint: roll the dice. ⭐ cells give bonus and ❓ cells ask science questions.');
+}
+function toggleVoice(){G.voice=!G.voice;$('voiceBtn').textContent=G.voice?'🔊 Voice ON':'🔇 Voice OFF';if(G.voice)coach('Voice guide is on. Dr AI will guide BioLudo Classic.')}
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&['s','u'].includes(e.key.toLowerCase()))e.preventDefault();
+  if(e.key==='F12')e.preventDefault();
+});
+window.BioLudo={start,rollDice,moveToken,skipTurn,answerQuiz,hint,toggleVoice,tokenTap};
+start();
+})();
+</script>
+</body>
+</html>
