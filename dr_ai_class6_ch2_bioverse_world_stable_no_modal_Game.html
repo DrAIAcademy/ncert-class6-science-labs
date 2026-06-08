@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BioVerse World Stable | Dr AI Academy</title>
+<style>
+:root{--panel:rgba(8,25,50,.96);--cyan:#61f4ff;--gold:#ffe066;--green:#8cffc1;--red:#ff8aa0;--text:#eef8ff;--muted:#b7cce5}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;font-family:Arial,Segoe UI,sans-serif;color:var(--text);background:radial-gradient(circle at 15% 8%,rgba(97,244,255,.16),transparent 25%),linear-gradient(135deg,#061123,#123d82 58%,#071c34);overflow-x:hidden;user-select:none}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+.wrap{max-width:1450px;margin:auto;padding:12px}
+.panel{background:var(--panel);border:1px solid rgba(97,244,255,.25);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.hero{background:linear-gradient(180deg,rgba(18,61,130,.94),rgba(7,22,48,.97));position:relative;overflow:hidden}
+.hero:after{content:"🌍 🌿 🐾 🛡️ 👾 🏆";position:absolute;right:18px;bottom:14px;font-size:32px;letter-spacing:8px;opacity:.22}
+.logo{position:absolute;right:14px;top:14px;background:rgba(0,0,0,.28);border:1px solid rgba(97,244,255,.3);border-radius:16px;padding:8px 11px;text-align:right}
+.logo b{display:block}.logo span{color:var(--cyan);font-size:.74rem;font-weight:900}
+.badge{display:inline-block;background:rgba(97,244,255,.12);border:1px solid rgba(97,244,255,.25);border-radius:999px;color:var(--cyan);font-weight:900;padding:8px 12px;font-size:.78rem}
+h1{font-size:clamp(1.8rem,5vw,3.6rem);line-height:1.04;margin:10px 0 8px;max-width:1080px}
+.sub{line-height:1.55;color:var(--muted);max-width:1100px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:0;border-radius:15px;padding:12px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,var(--cyan),#d9fbff);color:#061123;min-height:46px}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#fff3b0);color:#241400}
+.btn.dark{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff}
+.gameGrid{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:12px;align-items:start}
+.world{min-height:720px;border-radius:20px;background:linear-gradient(180deg,#9fe5ff 0,#dff8ff 18%,#7ad36a 19%,#2f7b3c 50%,#5b371d 51%,#20130b);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+.topbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px;position:relative;z-index:3}
+.tag{background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:9px 12px;font-weight:900}
+.map{position:relative;width:min(96%,900px);min-height:585px;margin:8px auto 18px;border-radius:30px;background:radial-gradient(circle at 18% 24%,rgba(63,178,92,.9),transparent 18%),radial-gradient(circle at 76% 28%,rgba(28,138,172,.9),transparent 18%),radial-gradient(circle at 25% 75%,rgba(212,158,73,.92),transparent 20%),linear-gradient(135deg,rgba(34,117,56,.92),rgba(46,118,137,.92));border:2px solid rgba(255,255,255,.2);box-shadow:0 18px 34px rgba(0,0,0,.3);overflow:hidden}
+.grid{position:absolute;inset:0;opacity:.25;background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);background-size:54px 54px}
+.zone{position:absolute;border-radius:24px;border:2px solid rgba(255,255,255,.24);background:rgba(0,0,0,.28);color:#fff;padding:10px;display:grid;place-items:center;text-align:center;font-weight:1000;min-width:132px;min-height:105px;box-shadow:0 14px 24px rgba(0,0,0,.24)}
+.zone .icon{font-size:46px}.zone small{display:block;color:#e8f7ff;margin-top:4px}.zone.active{border-color:var(--gold);box-shadow:0 0 0 5px rgba(255,224,102,.18),0 14px 24px rgba(0,0,0,.24)}.zone.done{border-color:var(--green);background:rgba(140,255,193,.16)}.zone.locked{opacity:.48;filter:grayscale(.6)}
+#z0{left:7%;top:10%}#z1{left:38%;top:8%}#z2{right:7%;top:12%}#z3{left:10%;top:45%}#z4{left:40%;top:42%}#z5{right:9%;top:45%}#z6{left:21%;bottom:8%}#z7{right:22%;bottom:7%}
+.player{position:absolute;z-index:10;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg,#fff,#c7faff);border:4px solid rgba(255,224,102,.9);box-shadow:0 10px 22px rgba(0,0,0,.35),0 0 0 8px rgba(255,224,102,.18);transition:left .45s ease,top .45s ease;animation:bob 2s infinite ease-in-out}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.cleanGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px}
+.avatarGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.avatarBtn{border:2px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;border-radius:16px;min-height:54px;font-size:27px}.avatarBtn.active{border-color:var(--gold)}
+.badgeList{display:grid;gap:8px}.badgeItem{border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:10px;font-weight:900}.badgeItem.done{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.12)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center}.stat b{display:block;color:var(--cyan);font-size:22px}
+.bar{height:14px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:8px}.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--green))}
+.infoBox{background:linear-gradient(180deg,rgba(97,244,255,.10),rgba(255,255,255,.04));border:1px solid rgba(97,244,255,.20);border-radius:16px;padding:12px;line-height:1.55;margin-top:10px}
+#coach{background:rgba(255,224,102,.10);border:1px solid rgba(255,224,102,.25);border-radius:14px;padding:10px;font-weight:800}
+.taskRow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.task{border-radius:14px;padding:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);font-weight:900;text-align:center}.task.done{border-color:var(--green);background:rgba(140,255,193,.13)}.task.active{border-color:var(--gold);background:rgba(255,224,102,.13)}
+.choice{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:13px;color:#fff;text-align:left;min-height:54px;margin-top:8px;font-size:15px}.choice.correct{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.16)}.choice.wrong{border-color:rgba(255,138,160,.75);background:rgba(255,138,160,.16)}
+.log{max-height:150px;overflow:auto;background:rgba(0,0,0,.18);border-radius:14px;padding:10px;font-size:.92rem}.log p{margin:0 0 8px}
+.burst{position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);z-index:2000;background:rgba(8,25,50,.95);border:2px solid var(--green);border-radius:24px;padding:18px 24px;font-size:clamp(1.4rem,5vw,2.5rem);font-weight:1000;box-shadow:0 24px 55px rgba(0,0,0,.48);animation:burst .9s forwards;text-align:center}
+@keyframes burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-65%) scale(1)}}
+.cert{display:none;text-align:center;border:2px solid var(--gold)}.cert input{width:100%;max-width:360px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;text-align:center}
+.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted)}.footer a{color:var(--cyan);font-weight:900;text-decoration:none}
+@media(max-width:1120px){.gameGrid{grid-template-columns:1fr}.logo{position:static;width:max-content;margin:0 0 10px auto}.hero:after{display:none}}
+@media(max-width:760px){.wrap{padding:6px}.panel{padding:10px;margin:8px 0;border-radius:16px}h1{font-size:1.45rem}.controls,.stats,.cleanGrid,.taskRow{grid-template-columns:1fr}.world{min-height:auto}.map{min-height:760px;border-radius:22px}.zone{min-width:108px;min-height:86px;padding:8px}.zone .icon{font-size:38px}.zone small{font-size:.72rem}#z0{left:5%;top:7%}#z1{left:52%;top:7%}#z2{right:6%;top:25%}#z3{left:5%;top:36%}#z4{left:52%;top:42%}#z5{right:6%;top:55%}#z6{left:5%;bottom:8%}#z7{right:8%;bottom:8%}.player{width:54px;height:54px;font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="panel hero">
+  <div class="logo"><b>Dr AI Academy</b><span>Stable Adventure Build</span></div>
+  <div class="badge">CLASS 6 • CHAPTER 2 • DIVERSITY IN THE LIVING WORLD</div>
+  <h1>BioVerse World: Stable Adventure Quest</h1>
+  <p class="sub">This build removes the modal popup completely. Missions now run directly in the side panel, so correct answer reliably moves to Mission 2/3, Mission 3/3 and then badge unlock.</p>
+  <div class="controls">
+    <button class="btn gold" onclick="Game.start()">🎮 Start</button>
+    <button class="btn dark" onclick="Game.enterZone()">⚡ Start / Continue Zone</button>
+    <button class="btn dark" onclick="Game.forceNext()">➡️ Force Next Mission</button>
+    <button class="btn dark" onclick="Game.toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+  </div>
+</section>
+
+<section class="gameGrid">
+  <div class="leftCol">
+    <section class="panel world">
+      <div class="topbar"><div class="tag">BioVerse Map</div><div class="tag" id="zoneTag">Zone: Forest Gate</div></div>
+      <div class="map" id="map">
+        <div class="grid"></div>
+        <button class="zone" id="z0" onclick="Game.selectZone(0)"><div class="icon">🌳</div><small>Forest Gate</small></button>
+        <button class="zone" id="z1" onclick="Game.selectZone(1)"><div class="icon">🌿</div><small>Plant Lab</small></button>
+        <button class="zone" id="z2" onclick="Game.selectZone(2)"><div class="icon">🍃</div><small>Leaf Pond</small></button>
+        <button class="zone" id="z3" onclick="Game.selectZone(3)"><div class="icon">🫘</div><small>Root Cave</small></button>
+        <button class="zone" id="z4" onclick="Game.selectZone(4)"><div class="icon">🐾</div><small>Animal Arena</small></button>
+        <button class="zone" id="z5" onclick="Game.selectZone(5)"><div class="icon">🌍</div><small>Habitat World</small></button>
+        <button class="zone" id="z6" onclick="Game.selectZone(6)"><div class="icon">🛡️</div><small>Conservation Base</small></button>
+        <button class="zone locked" id="z7" onclick="Game.selectZone(7)"><div class="icon">👾</div><small>Pollution Monster</small></button>
+        <div class="player" id="player">🧑‍🚀</div>
+      </div>
+    </section>
+    <section class="panel cleanGrid">
+      <div class="box"><h3>🧑‍🚀 Avatar</h3><div class="avatarGrid" id="avatars"></div></div>
+      <div class="box"><h3>🎒 Badges</h3><div class="badgeList" id="badgeList"></div></div>
+    </section>
+  </div>
+
+  <aside class="panel">
+    <h2 id="zoneTitle">Forest Gate</h2>
+    <div class="stats">
+      <div class="stat"><b id="score">0</b>Score</div>
+      <div class="stat"><b id="coins">0</b>Coins</div>
+      <div class="stat"><b id="badges">0/8</b>Badges</div>
+    </div>
+    <div class="bar"><span id="progress"></span></div>
+    <div class="infoBox"><h3>🤖 Dr AI Guide</h3><p id="coach">Select zone and press Start / Continue Zone.</p></div>
+    <div class="infoBox"><b>Zone Story</b><p id="story">BioVerse is under attack. Complete science missions to unlock badges.</p><p><b>Status:</b> <span id="status">Ready.</span></p></div>
+    <div class="infoBox"><b>Mission Progress</b><div class="taskRow" id="tasks"></div></div>
+    <div class="infoBox">
+      <b id="questionHead">Active Question</b>
+      <p id="question">Press Start / Continue Zone.</p>
+      <div id="options"></div>
+    </div>
+    <div class="infoBox"><b>Science Result</b><p id="concept">Answer questions to complete missions.</p></div>
+    <div class="infoBox"><b>Adventure Log</b><div class="log" id="log"></div></div>
+  </aside>
+</section>
+
+<section class="panel cert" id="certificate">
+  <div style="font-size:54px">🌍🏆🏅</div><h2>Certificate of BioVerse World Mastery</h2>
+  <p>This certifies that</p><input placeholder="Enter Student Name">
+  <p>has completed <b>BioVerse World: Stable Adventure Quest</b></p>
+  <p><b>Developed by Dr AI Academy</b></p><button class="btn gold" onclick="window.print()">Print / Save Certificate</button>
+</section>
+
+<footer class="panel footer"><div>Developed by <b>Dr AI Academy</b></div><div><a href="https://courses.draiacademy.com" target="_blank">AI Courses @ Dr AI Academy</a></div></footer>
+</div>
+
+<script>
+(function(){
+const avatars=['🧑‍🚀','🧙','🦸','🧑‍🔬','🤖','🧒','👧','🐵'];
+const zones=[
+ {name:'Forest Gate',icon:'🌳',pos:[15,16],badge:'🌳 Bio Observer',story:'A forest NPC asks you to observe without disturbing living beings.',tasks:['Scan living beings','Record observations','Respect nature'],qs:[
+  ['Biodiversity means:','Variety of living beings',['Variety of living beings','Only one plant','Only stones'],'Biodiversity includes many plants, animals and other living beings.'],
+  ['During nature walk, students should:','Observe without disturbing',['Observe without disturbing','Pluck everything','Scare animals'],'Observation should be respectful and careful.'],
+  ['A good field habit is:','Record features in notebook',['Record features in notebook','Throw waste','Break nests'],'Field notes build scientific observation skills.']]},
+ {name:'Plant Lab',icon:'🌿',pos:[45,13],badge:'🌿 Plant Detective',story:'Plant Lab needs your help to identify plant groups.',tasks:['Classify herb','Classify shrub/tree','Find climber/creeper'],qs:[
+  ['A small plant with soft green stem is:','Herb',['Herb','Tree','Fish'],'Herbs have soft green stems.'],
+  ['A tall plant with thick woody trunk is:','Tree',['Tree','Herb','Snake'],'Trees have thick woody trunks.'],
+  ['Pumpkin plant spreading on ground is:','Creeper',['Creeper','Climber','Bird'],'Creepers have weak stems and spread on ground.']]},
+ {name:'Leaf Pond',icon:'🍃',pos:[75,20],badge:'🍃 Leaf Decoder',story:'A magical pond shows leaf vein patterns.',tasks:['Scan reticulate','Scan parallel','Predict root link'],qs:[
+  ['Network-like leaf veins are:','Reticulate venation',['Reticulate venation','Parallel venation','No venation'],'Reticulate venation forms a network.'],
+  ['Side-by-side veins are:','Parallel venation',['Parallel venation','Reticulate venation','Seed coat'],'Parallel venation has veins running side by side.'],
+  ['Parallel venation usually links with:','Fibrous root',['Fibrous root','Taproot','Wings'],'Parallel venation usually links with fibrous root.']]},
+ {name:'Root Cave',icon:'🫘',pos:[20,55],badge:'🫘 Root Explorer',story:'Underground root caves are full of hidden patterns.',tasks:['Find taproot','Find fibrous root','Absorb water'],qs:[
+  ['One main root with branches is:','Taproot',['Taproot','Fibrous root','Leaf'],'Taproot has one main root.'],
+  ['Many thin roots from the base are:','Fibrous root',['Fibrous root','Taproot','Stem'],'Fibrous root has many similar thin roots.'],
+  ['Roots help plants by:','Absorbing water and anchoring',['Absorbing water and anchoring','Flying','Making animals'],'Roots absorb water and hold plants in soil.']]},
+ {name:'Animal Arena',icon:'🐾',pos:[48,47],badge:'🐾 Motion Master',story:'Animals race across the arena with different movement styles.',tasks:['Scan fish','Scan bird','Scan snake/frog'],qs:[
+  ['Fish swims using:','Fins and tail',['Fins and tail','Roots','Flowers'],'Fish uses fins and tail for swimming.'],
+  ['Bird flies using:','Wings',['Wings','Gills','Taproot'],'Wings help birds fly.'],
+  ['Frog jumps using:','Strong hind legs',['Strong hind legs','Seed coat','Woody trunk'],'Frog has strong hind legs for jumping.']]},
+ {name:'Habitat World',icon:'🌍',pos:[78,55],badge:'🌍 Habitat Hero',story:'Habitat World changes from desert to pond to forest.',tasks:['Desert survival','Water survival','Forest adaptation'],qs:[
+  ['Camel is adapted to:','Desert',['Desert','Pond','Snow only'],'Camel has adaptations for desert conditions.'],
+  ['Fish breathes in water using:','Gills',['Gills','Hump','Hooves'],'Gills help fish breathe in water.'],
+  ['Tiger stripes help in:','Camouflage',['Camouflage','Breathing underwater','Making seeds'],'Stripes help tiger blend with surroundings.']]},
+ {name:'Conservation Base',icon:'🛡️',pos:[31,82],badge:'🛡️ Conservation Guardian',story:'Conservation Base trains students to protect living beings.',tasks:['Stop deforestation','Clean water','Plant native trees'],qs:[
+  ['Conservation protects:','Living beings and habitats',['Living beings and habitats','Only roads','Only plastic'],'Conservation protects biodiversity and habitats.'],
+  ['Project Tiger helps protect:','Tiger and forest habitat',['Tiger and forest habitat','Only traffic','Only buildings'],'Project Tiger protects tigers and forests.'],
+  ['Best school biodiversity action is:','Plant native trees and reduce waste',['Plant native trees and reduce waste','Break nests','Waste water'],'Native plants and low waste help local biodiversity.']]},
+ {name:'Pollution Monster',icon:'👾',pos:[70,83],badge:'🏆 BioVerse Champion',story:'Pollution Monster attacks forests, ponds and habitats. Defeat it with science.',tasks:['Attack with plant knowledge','Attack with habitat knowledge','Attack with conservation knowledge'],qs:[
+  ['Deforestation mainly destroys:','Habitat',['Habitat','Dice','Certificate'],'Deforestation destroys habitats and affects biodiversity.'],
+  ['River pollution harms:','Aquatic life',['Aquatic life','Only desert sand','Only roads'],'Water pollution harms fish, frogs and aquatic plants.'],
+  ['Biodiversity should be protected for:','Future generations',['Future generations','Only today','Only machines'],'Conservation protects nature for the future.']]}
+];
+const G={avatar:'🧑‍🚀',voice:true,zone:0,task:0,active:false,score:0,coins:0,solved:{},locked:false};
+function $(id){return document.getElementById(id)}
+function say(t){if(!G.voice)return;try{speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=.94;speechSynthesis.speak(u)}catch(e){}}
+function coach(t){$('coach').textContent=t;say(t)}
+function log(t){$('log').innerHTML='<p>'+t+'</p>'+$('log').innerHTML}
+function tone(){try{const C=window.AudioContext||window.webkitAudioContext,ctx=new C(),o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=820;g.gain.value=.05;o.connect(g);g.connect(ctx.destination);o.start();setTimeout(()=>{o.stop();ctx.close()},150)}catch(e){}}
+function burst(t){let d=document.createElement('div');d.className='burst';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),950)}
+function start(){G.zone=0;G.task=0;G.active=false;G.score=0;G.coins=0;G.solved={};G.locked=false;$('certificate').style.display='none';drawAll();selectZone(0);coach('Adventure started. Press Start / Continue Zone.')}
+function drawAvatars(){let h='';avatars.forEach(a=>h+=`<button class="avatarBtn ${G.avatar===a?'active':''}" onclick="Game.setAvatar('${a}')">${a}</button>`);$('avatars').innerHTML=h;$('player').textContent=G.avatar}
+function setAvatar(a){G.avatar=a;drawAvatars();coach('Avatar selected.')}
+function drawMap(){zones.forEach((z,i)=>{let el=$('z'+i);el.classList.toggle('active',i===G.zone);el.classList.toggle('done',!!G.solved[i]);el.classList.toggle('locked',i===7&&Object.keys(G.solved).length<7)});let z=zones[G.zone];$('player').style.left=z.pos[0]+'%';$('player').style.top=z.pos[1]+'%';$('zoneTag').textContent='Zone: '+z.name}
+function drawBadges(){let h='';zones.forEach((z,i)=>h+=`<div class="badgeItem ${G.solved[i]?'done':''}">${G.solved[i]?z.badge:'🔒 '+z.name}</div>`);$('badgeList').innerHTML=h}
+function drawTasks(){let z=zones[G.zone],h='';z.tasks.forEach((t,i)=>h+=`<div class="task ${i<G.task?'done':i===G.task?'active':''}">${i<G.task?'✅':i===G.task?'⚡':'🔒'} ${t}</div>`);$('tasks').innerHTML=h}
+function drawStats(){let n=Object.keys(G.solved).length;$('score').textContent=G.score;$('coins').textContent=G.coins;$('badges').textContent=n+'/8';$('progress').style.width=Math.round(n/8*100)+'%'}
+function drawAll(){drawAvatars();drawMap();drawBadges();drawTasks();drawStats()}
+function selectZone(i){if(i===7&&Object.keys(G.solved).length<7){coach('Complete all 7 zones to unlock Pollution Monster.');return}G.zone=i;G.task=0;G.active=false;let z=zones[i];$('zoneTitle').textContent=z.name;$('story').textContent=z.story;$('concept').textContent='Press Start / Continue Zone to begin.';$('status').textContent='Selected '+z.name+'.';$('question').textContent='Press Start / Continue Zone.';$('options').innerHTML='';drawAll();coach('Selected '+z.name+'.')}
+function enterZone(){G.active=true;renderQuestion()}
+function renderQuestion(){let z=zones[G.zone];if(G.task>=z.tasks.length){completeZone();return}let q=z.qs[G.task];$('status').textContent='Mission '+(G.task+1)+'/'+z.tasks.length+': '+z.tasks[G.task];$('questionHead').textContent='Mission '+(G.task+1)+' Question';$('question').textContent=q[0];let h='';q[2].forEach((o,i)=>h+=`<button class="choice" onclick="Game.answer(${i})">${o}</button>`);$('options').innerHTML=h;drawTasks();coach('Mission '+(G.task+1)+' loaded.')}
+function answer(i){if(G.locked)return;G.locked=true;let z=zones[G.zone],q=z.qs[G.task],ans=q[2][i],correct=ans===q[1];document.querySelectorAll('.choice').forEach((b,idx)=>{if(q[2][idx]===q[1])b.classList.add('correct');else if(idx===i&&!correct)b.classList.add('wrong');b.disabled=true});if(correct){G.score+=100;G.coins+=25;tone();burst('✅ Correct');$('concept').textContent=q[3];G.task++;drawStats();log('<b>Correct:</b> '+q[3]);if(G.task>=z.tasks.length){$('status').textContent='All missions complete. Badge unlocking...';$('question').textContent='Zone complete.';$('options').innerHTML=`<button class="choice correct">🏅 ${z.badge} unlocked</button>`;setTimeout(()=>{G.locked=false;completeZone()},500)}else{$('status').textContent='Correct. Loading Mission '+(G.task+1)+'...';setTimeout(()=>{G.locked=false;renderQuestion()},350)}}else{G.score=Math.max(0,G.score-25);$('concept').textContent='Correct answer: '+q[1]+'. '+q[3];coach('Wrong. Try again.');setTimeout(()=>{G.locked=false;renderQuestion()},850)}drawStats()}
+function completeZone(){let z=zones[G.zone];if(!G.solved[G.zone]){G.solved[G.zone]=true;G.score+=250;G.coins+=75;burst('🏅 Badge Unlocked');log('<b>Badge:</b> '+z.badge)}G.active=false;drawAll();drawStats();coach(z.badge+' unlocked.');if(G.zone===7){$('certificate').style.display='block';$('certificate').scrollIntoView({behavior:'smooth'});coach('Pollution Monster defeated. Certificate unlocked.');return}let next=G.zone+1;if(next<zones.length){setTimeout(()=>selectZone(next),550)}}
+function forceNext(){if(G.active){G.task++;if(G.task>=zones[G.zone].tasks.length)completeZone();else renderQuestion()}else enterZone()}
+function toggleVoice(){G.voice=!G.voice;$('voiceBtn').textContent=G.voice?'🔊 Voice ON':'🔇 Voice OFF'}
+window.Game={start,setAvatar,selectZone,enterZone,answer,forceNext,toggleVoice};
+start();
+})();
+</script>
+</body>
+</html>
