@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Olympiad Challenge Arena | Dr AI Academy</title>
+<style>
+:root{
+  --panel:rgba(10,28,54,.96);
+  --cyan:#64f4ff; --gold:#ffe066; --green:#8cffc1; --red:#ff8aa0;
+  --text:#eef8ff; --muted:#b7cce5;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;padding:0;font-family:Arial,Segoe UI,sans-serif;color:var(--text);
+  background:
+    radial-gradient(circle at 15% 10%,rgba(100,244,255,.16),transparent 26%),
+    radial-gradient(circle at 85% 10%,rgba(255,224,102,.14),transparent 26%),
+    linear-gradient(135deg,#061123,#123d82 60%,#071c34);
+  overflow-x:hidden;-webkit-text-size-adjust:100%;user-select:none
+}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+.watermark{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.wm{position:absolute;color:rgba(255,255,255,.055);font-size:clamp(28px,4vw,54px);font-weight:1000;transform:rotate(-24deg);white-space:nowrap}
+.cornerMark{position:fixed;right:12px;bottom:12px;z-index:1000;pointer-events:none;color:rgba(255,255,255,.78);background:rgba(4,13,24,.45);border:1px solid rgba(255,255,255,.2);padding:7px 10px;border-radius:999px;font-weight:900}
+.wrap{max-width:1460px;margin:auto;padding:12px;position:relative;z-index:1}
+.panel{background:var(--panel);border:1px solid rgba(100,244,255,.25);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.hero{background:linear-gradient(180deg,rgba(18,61,130,.94),rgba(7,22,48,.97));position:relative;overflow:hidden}
+.hero:after{content:"🏆 🧠 ⚡ 🔍 🌿 🐾";position:absolute;right:18px;bottom:14px;font-size:32px;letter-spacing:8px;opacity:.22}
+.logo{position:absolute;right:14px;top:14px;background:rgba(0,0,0,.28);border:1px solid rgba(100,244,255,.3);border-radius:16px;padding:8px 11px;text-align:right}
+.logo b{display:block}.logo span{color:var(--cyan);font-size:.74rem;font-weight:900}
+.badge{display:inline-block;background:rgba(100,244,255,.12);border:1px solid rgba(100,244,255,.25);border-radius:999px;color:var(--cyan);font-weight:900;padding:8px 12px;font-size:.78rem}
+h1{font-size:clamp(1.8rem,5vw,3.8rem);line-height:1.04;margin:10px 0 8px;max-width:1050px}
+.sub{line-height:1.55;color:var(--muted);max-width:1080px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:0;border-radius:15px;padding:12px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,var(--cyan),#d9fbff);color:#061123;min-height:46px}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#fff3b0);color:#241400}
+.btn.dark{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff}
+.gameGrid{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:12px;align-items:start}
+.scene{
+  position:relative;min-height:830px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(180deg,#a7e8ff 0,#dff8ff 18%,#7bc86c 19%,#2f7a3a 45%,#6f4422 46%,#2d190e 100%);
+  border:1px solid rgba(255,255,255,.15);
+}
+.sceneTitle,.labTag{position:absolute;top:14px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:9px 12px;font-weight:900;z-index:10}
+.sceneTitle{left:14px}.labTag{right:14px}
+.arena{
+  position:absolute;left:50%;top:98px;transform:translateX(-50%);
+  width:min(74vw,730px);height:575px;border-radius:34px;
+  background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(0,0,0,.18)),radial-gradient(ellipse at 50% 55%,#1f6a68,#12324c 68%,#0b172b);
+  border:2px solid rgba(255,255,255,.20);box-shadow:0 18px 34px rgba(0,0,0,.30);z-index:2;overflow:hidden
+}
+.energyRing{
+  position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);
+  width:310px;height:310px;border-radius:50%;border:8px solid rgba(100,244,255,.42);
+  box-shadow:0 0 32px rgba(100,244,255,.24), inset 0 0 32px rgba(100,244,255,.15);
+  animation:ring 3s infinite ease-in-out
+}
+@keyframes ring{0%,100%{opacity:.55;scale:.96}50%{opacity:1;scale:1.04}}
+.challengeCard{
+  position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);
+  width:min(88%,520px);min-height:225px;border-radius:26px;background:rgba(0,0,0,.34);
+  border:2px solid rgba(255,255,255,.20);box-shadow:0 18px 28px rgba(0,0,0,.26);
+  padding:18px;text-align:center;z-index:5;display:flex;flex-direction:column;justify-content:center;gap:10px;
+  animation:float 2.8s infinite ease-in-out
+}
+@keyframes float{0%,100%{margin-top:0}50%{margin-top:-9px}}
+#challengeIcon{font-size:58px}
+#challengeText{font-size:1.05rem;line-height:1.45;font-weight:900}
+#challengeType{color:var(--gold);font-weight:1000}
+.scanBeam{
+  position:absolute;left:50%;top:70px;transform:translateX(-50%);
+  width:min(60vw,540px);height:690px;z-index:1;
+  background:linear-gradient(180deg,rgba(100,244,255,.05),rgba(100,244,255,.16),rgba(100,244,255,.02));
+  clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);
+  animation:beam 3s infinite ease-in-out;pointer-events:none
+}
+@keyframes beam{0%,100%{opacity:.26}50%{opacity:.75}}
+.powerStrip{
+  position:absolute;left:5%;right:5%;bottom:110px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;z-index:5
+}
+.power{
+  border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  min-height:78px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;font-weight:900
+}
+.power.done{background:rgba(140,255,193,.14);border-color:rgba(140,255,193,.75)}
+.skillPanel{
+  position:absolute;left:50%;bottom:24px;transform:translateX(-50%);
+  width:min(68vw,700px);display:grid;grid-template-columns:repeat(4,1fr);gap:8px;z-index:9;
+  padding:10px;border-radius:18px;background:rgba(0,0,0,.30);border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 12px 24px rgba(0,0,0,.24)
+}
+.skillBtn{border:2px solid rgba(255,255,255,.22);background:rgba(255,224,102,.18);color:white;border-radius:999px;min-height:42px;font-weight:900}
+.skillBtn.done{background:rgba(140,255,193,.18);border-color:rgba(140,255,193,.75)}
+.levelRack{
+  position:absolute;left:4%;bottom:22px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.scannerNote{
+  position:absolute;right:4%;bottom:22px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.levelRack h3,.scannerNote h3{margin:4px 0 8px;font-size:1rem}
+.levelGrid{display:grid;gap:8px}
+.levelGrid button{width:100%;text-align:left;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;font-weight:800}
+.levelGrid button.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,224,102,.18)}
+.levelGrid button.solved{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.12)}
+.scannerNote p{margin:6px 0;color:var(--muted);font-size:.93rem;line-height:1.45}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;color:var(--cyan);font-size:22px}
+.bar{height:14px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--green))}
+.infoBox{background:linear-gradient(180deg,rgba(100,244,255,.10),rgba(255,255,255,.04));border:1px solid rgba(100,244,255,.20);border-radius:16px;padding:12px;line-height:1.55;margin-top:10px}
+#coach{background:rgba(255,224,102,.10);border:1px solid rgba(255,224,102,.25);border-radius:14px;padding:10px;font-weight:800;animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(255,224,102,0)}50%{box-shadow:0 0 18px rgba(255,224,102,.18)}}
+.optionGrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+.choice{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:11px;color:#fff;text-align:left;min-height:54px}
+.choice.correct{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.16)}
+.choice.wrong{border-color:rgba(255,138,160,.75);background:rgba(255,138,160,.16)}
+.log{max-height:145px;overflow:auto;background:rgba(0,0,0,.18);border-radius:14px;padding:10px;font-size:.92rem}
+.log p{margin:0 0 8px}
+.cert{display:none;text-align:center;border:2px solid var(--gold)}
+.cert input{width:100%;max-width:360px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;text-align:center}
+.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted)}
+.footer a{color:var(--cyan);font-weight:900;text-decoration:none}
+@media(max-width:1080px){
+  .gameGrid{grid-template-columns:1fr}.logo{position:static;width:max-content;margin:0 0 10px auto}
+  .hero:after{display:none}.controls{display:grid;grid-template-columns:1fr 1fr}.btn{width:100%}
+  .scene{min-height:1080px}
+  .levelRack,.scannerNote{position:relative;left:auto;right:auto;bottom:auto;width:calc(100% - 20px);margin:10px auto}
+  .skillPanel{bottom:292px;width:calc(100% - 20px)}
+  .arena{height:560px}
+}
+@media(max-width:620px){
+  .wrap{padding:6px}.panel{padding:10px;margin:8px 0;border-radius:16px}
+  h1{font-size:1.46rem}h2{font-size:1.08rem;margin:8px 0}h3{font-size:1rem;margin:8px 0}
+  .controls,.stats{grid-template-columns:1fr}.stat{padding:8px}.stat b{font-size:18px}
+  .scene{min-height:1200px}
+  .arena{left:50%;width:92vw;height:565px;top:88px}
+  .energyRing{width:220px;height:220px}.challengeCard{width:90%;min-height:230px;padding:14px}#challengeIcon{font-size:48px}#challengeText{font-size:.95rem}
+  .powerStrip{grid-template-columns:1fr;bottom:18px}.power{min-height:48px}
+  .skillPanel{bottom:318px;width:calc(100% - 16px);grid-template-columns:repeat(2,1fr);gap:7px;padding:8px}
+  .skillBtn{font-size:.78rem;min-height:42px;padding:8px}
+  .levelRack,.scannerNote{font-size:.9rem}.infoBox{font-size:.9rem}
+}
+@media print{
+  .hero,.gameGrid,.footer,.watermark,.cornerMark{display:none!important}
+  .cert{display:block!important;color:#111;background:#fff}
+  .cert input{color:#111;border:0}
+}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div class="watermark"><div class="wm" style="top:5%;left:-8%">Dr AI Academy</div><div class="wm" style="top:30%;left:35%">Dr AI Academy</div><div class="wm" style="top:55%;left:-5%">Dr AI Academy</div><div class="wm" style="top:78%;left:35%">Dr AI Academy</div></div>
+<div class="cornerMark">Dr AI Academy</div>
+
+<div class="wrap">
+<section class="panel hero">
+  <div class="logo"><b>Dr AI Academy</b><span>Olympiad Reasoning Lab</span></div>
+  <div class="badge">CLASS 6 • CHAPTER 2 • HIGHER ORDER THINKING</div>
+  <h1>Olympiad Challenge Arena:<br>Diversity Reasoning Battle</h1>
+  <p class="sub">A responsive reasoning arena where students solve odd-one-out, assertion-reason, match-the-feature, prediction and conservation questions based on Diversity in the Living World. Simple language, but higher-order thinking for Olympiad, NEET foundation, UPSC awareness and scientific reasoning.</p>
+  <div class="controls">
+    <button class="btn gold" onclick="OlympiadLab.start()">🎮 Start Challenge</button>
+    <button class="btn dark" onclick="OlympiadLab.nextChallenge()">⚡ Next Challenge</button>
+    <button class="btn dark" onclick="OlympiadLab.hint()">💡 Dr AI Hint</button>
+    <button class="btn dark" onclick="OlympiadLab.toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+  </div>
+</section>
+
+<section class="gameGrid">
+<main class="panel">
+<h2 id="missionTitle">Reasoning Level 1</h2>
+<div class="scene" id="scene">
+  <div class="sceneTitle">3D Olympiad Reasoning Arena</div><div class="labTag" id="labTag">Level: Odd One Out</div>
+  <div class="scanBeam"></div>
+  <div class="arena">
+    <div class="energyRing" id="energyRing"></div>
+    <div class="challengeCard">
+      <div id="challengeType">Odd One Out</div>
+      <div id="challengeIcon">🌿</div>
+      <div id="challengeText">Grass, Tulsi, Fish, Mango Tree — which one is different?</div>
+    </div>
+    <div class="powerStrip" id="powerStrip"></div>
+  </div>
+
+  <div class="skillPanel">
+    <button class="skillBtn" id="observeBtn" onclick="OlympiadLab.scan('observe')">Observe</button>
+    <button class="skillBtn" id="compareBtn" onclick="OlympiadLab.scan('compare')">Compare</button>
+    <button class="skillBtn" id="predictBtn" onclick="OlympiadLab.scan('predict')">Predict</button>
+    <button class="skillBtn" id="justifyBtn" onclick="OlympiadLab.scan('justify')">Justify</button>
+  </div>
+
+  <div class="levelRack"><h3>🏆 Levels</h3><div class="levelGrid" id="levelButtons"></div></div>
+  <div class="scannerNote"><h3>📓 Dr AI Battle Notes</h3><p id="storyText">Scan thinking skills, answer the challenge, then justify.</p><p><b>Latest scan:</b> <span id="latestScan">Nothing scanned yet.</span></p><p><b>Reasoning habit:</b> do not guess; observe, compare, predict, justify.</p></div>
+</div>
+</main>
+
+<aside class="panel">
+<div class="stats"><div class="stat"><b id="score">0</b>Score</div><div class="stat"><b id="qNo">1/5</b>Q</div><div class="stat"><b id="scanMeter">0%</b>Scan</div></div><div class="bar"><span id="scanBar"></span></div>
+<div class="infoBox"><h3>🤖 Dr AI Live Guide</h3><p id="coach">Scan thinking skills, choose answer, then solve reasoning.</p></div>
+<div class="infoBox"><b>Step 1: Thinking Skill Scan</b><div id="checklist"></div></div>
+<div class="infoBox"><b>Step 2: Choose Answer</b><div class="optionGrid" id="answerOptions"></div></div>
+<div class="infoBox"><b>Step 3: Justification</b><p id="reasonQuestion">Answer correctly to unlock justification.</p><div class="optionGrid" id="reasonOptions"></div></div>
+<div class="infoBox"><b>Science Result</b><p id="concept">Reasoning questions train students to apply concepts, not just remember them.</p></div>
+<div class="infoBox"><b>Battle Log</b><div class="log" id="log"></div></div>
+</aside>
+</section>
+
+<section class="panel cert" id="certificate">
+  <div style="font-size:54px">🏆🧠🏅</div><h2>Certificate of Olympiad Reasoning Mastery</h2>
+  <p>This certifies that</p><input placeholder="Enter Student Name">
+  <p>has completed <b>Olympiad Challenge Arena: Diversity Reasoning Battle</b></p>
+  <p>Skills: odd-one-out • assertion-reason • match features • prediction • conservation reasoning • scientific justification</p>
+  <p><b>Developed by Dr AI Academy</b></p><button class="btn gold" onclick="window.print()">Print / Save Certificate</button>
+</section>
+<footer class="panel footer"><div>Developed by <b>Dr AI Academy</b> • Class 6 Science advanced reasoning simulation</div><div><a href="https://courses.draiacademy.com" target="_blank">AI Courses @ Dr AI Academy</a></div></footer>
+</div>
+
+<script>
+(function(){
+const Lab={voice:true,score:0,level:0,q:0,scans:{},answer:null,solved:{}};
+const levels=[
+ {id:'odd',title:'Level 1: Odd One Out',tag:'Level: Odd One Out',icon:'🔎',
+  qs:[
+   {type:'Odd One Out',icon:'🐟',q:'Grass, Tulsi, Fish, Mango Tree — which one is different?',answer:'Fish',options:['Fish','Grass','Tulsi'],reason:'Fish is animal; others are plants.',reasonOptions:['Fish is animal; others are plants.','Fish has reticulate venation.','Grass is not living.'],concept:'Odd-one-out questions require comparing common features.'},
+   {type:'Odd One Out',icon:'🌳',q:'Herb, Shrub, Tree, Fish — which one does not belong to plant groups?',answer:'Fish',options:['Fish','Tree','Herb'],reason:'Fish is not a plant group.',reasonOptions:['Fish is not a plant group.','Tree swims in water.','Herb is animal.'],concept:'Classification needs correct category selection.'},
+   {type:'Odd One Out',icon:'🍃',q:'Taproot, Fibrous root, Reticulate venation, Wings — which one is not a plant root/leaf feature?',answer:'Wings',options:['Wings','Taproot','Reticulate venation'],reason:'Wings are animal movement parts, not root/leaf feature.',reasonOptions:['Wings are animal movement parts, not root/leaf feature.','Wings are roots.','Taproot is animal part.'],concept:'Comparing features prevents category confusion.'}
+  ]},
+ {id:'predict',title:'Level 2: Predict from Clues',tag:'Level: Prediction',icon:'⚡',
+  qs:[
+   {type:'Prediction',icon:'🌾',q:'A plant has narrow leaves with parallel veins. Which root is most likely?',answer:'Fibrous root',options:['Fibrous root','Taproot','No root'],reason:'Parallel venation usually links with fibrous root.',reasonOptions:['Parallel venation usually links with fibrous root.','Parallel venation means animal.','All plants have taproot only.'],concept:'Visible leaf patterns can help predict root type.'},
+   {type:'Prediction',icon:'🌺',q:'A leaf has network-like veins. Which venation is it?',answer:'Reticulate venation',options:['Reticulate venation','Parallel venation','No venation'],reason:'Network-like pattern is reticulate venation.',reasonOptions:['Network-like pattern is reticulate venation.','Network-like pattern is fins.','Parallel means net-like.'],concept:'Reticulate venation forms a network of veins.'},
+   {type:'Prediction',icon:'🫘',q:'A seed splits into two equal halves. What type is it?',answer:'Dicot',options:['Dicot','Monocot','Non-living'],reason:'Two cotyledons indicate dicot seed.',reasonOptions:['Two cotyledons indicate dicot seed.','One cotyledon indicates dicot seed.','Seeds are non-living stones.'],concept:'Cotyledon count helps classify seeds.'}
+  ]},
+ {id:'movement',title:'Level 3: Body Part Reasoning',tag:'Level: Movement Reasoning',icon:'🐾',
+  qs:[
+   {type:'Movement Reasoning',icon:'🐟',q:'Fish lives in water. Which body parts help it move?',answer:'Fins and tail',options:['Fins and tail','Wings and feathers','Taproot'],reason:'Fins and tail push water and help swimming.',reasonOptions:['Fins and tail push water and help swimming.','Wings help fish run.','Taproot helps swimming.'],concept:'Animal movement depends on body structure and habitat.'},
+   {type:'Movement Reasoning',icon:'🐍',q:'Snake has no legs. How does it move?',answer:'By muscular body and scales',options:['By muscular body and scales','By fins','By leaves'],reason:'Snake slithers using body muscles and scales.',reasonOptions:['Snake slithers using body muscles and scales.','Snake swims with leaves.','Snake uses woody trunk.'],concept:'Some animals move without legs using special body structures.'},
+   {type:'Movement Reasoning',icon:'🐸',q:'Frog jumps on land and swims in water. Which part is most important?',answer:'Strong hind legs',options:['Strong hind legs','Fins only','Flower'],reason:'Strong hind legs help jumping and swimming.',reasonOptions:['Strong hind legs help jumping and swimming.','Flowers help frog jump.','Taproot helps frog swim.'],concept:'One body part can help in more than one movement.'}
+  ]},
+ {id:'assertion',title:'Level 4: Assertion Reason',tag:'Level: Assertion Reason',icon:'🧠',
+  qs:[
+   {type:'Assertion Reason',icon:'🍃',q:'Assertion: Reticulate venation often links with taproot. Reason: Leaf pattern and root type show plant-group connection.',answer:'Both are correct and reason explains assertion',options:['Both are correct and reason explains assertion','Assertion correct but reason wrong','Both wrong'],reason:'Reticulate venation usually links with taproot in many plants.',reasonOptions:['Reticulate venation usually links with taproot in many plants.','Reticulate always means fibrous root only.','Leaf pattern has no use.'],concept:'Assertion-reason questions test concept links.'},
+   {type:'Assertion Reason',icon:'🌍',q:'Assertion: Camels survive well in desert. Reason: They have adaptations for heat and low water.',answer:'Both are correct and reason explains assertion',options:['Both are correct and reason explains assertion','Assertion wrong but reason correct','Both wrong'],reason:'Desert adaptations help camel survive heat and water scarcity.',reasonOptions:['Desert adaptations help camel survive heat and water scarcity.','Camels breathe with gills.','Camels live only in snow.'],concept:'Adaptations help organisms survive in their habitats.'},
+   {type:'Assertion Reason',icon:'🛡️',q:'Assertion: Conservation protects biodiversity. Reason: It protects habitats and living beings.',answer:'Both are correct and reason explains assertion',options:['Both are correct and reason explains assertion','Reason is unrelated','Both wrong'],reason:'Conservation protects species and their homes.',reasonOptions:['Conservation protects species and their homes.','Conservation means cutting all trees.','Habitats are not needed.'],concept:'Conservation protects biodiversity for future generations.'}
+  ]},
+ {id:'upsc',title:'Level 5: Conservation Awareness',tag:'Level: UPSC Foundation',icon:'🌍',
+  qs:[
+   {type:'Conservation Awareness',icon:'🐯',q:'Project Tiger mainly teaches us to protect which pair?',answer:'Tiger and its habitat',options:['Tiger and its habitat','Only school building','Only road traffic'],reason:'Protecting tiger also protects forest habitat and many species.',reasonOptions:['Protecting tiger also protects forest habitat and many species.','Tiger protection removes forests.','Only one animal matters.'],concept:'Flagship conservation can protect larger ecosystems.'},
+   {type:'Conservation Awareness',icon:'🙏',q:'Sacred groves help biodiversity because they are usually:',answer:'Community-protected forest patches',options:['Community-protected forest patches','Plastic dumping sites','Places without plants'],reason:'Community protection can preserve local plants and animals.',reasonOptions:['Community protection can preserve local plants and animals.','Sacred groves remove biodiversity.','Only factories protect animals.'],concept:'Local communities can play a strong role in conservation.'},
+   {type:'Conservation Awareness',icon:'🏫',q:'Best school-level action for biodiversity is:',answer:'Plant native trees and reduce waste',options:['Plant native trees and reduce waste','Break nests','Waste water daily'],reason:'Native plants create small habitats and support local life.',reasonOptions:['Native plants create small habitats and support local life.','Breaking nests helps birds.','Waste increases clean habitat.'],concept:'Citizen action can support biodiversity even at school level.'}
+  ]}
+];
+const scanKeys=['observe','compare','predict','justify'];
+function $(id){return document.getElementById(id)}
+function say(t){if(!Lab.voice)return;try{if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=.94;u.pitch=1.04;speechSynthesis.speak(u)}}catch(e){}}
+function coach(t){$('coach').textContent=t;say(t)}
+function log(t){$('log').innerHTML='<p>'+t+'</p>'+$('log').innerHTML}
+function currentLevel(){return levels[Lab.level]}
+function currentQ(){return currentLevel().qs[Lab.q]}
+function start(){Lab.score=0;Lab.level=0;Lab.q=0;Lab.solved={};loadChallenge(0,0);coach('Olympiad challenge started. Scan thinking skills, then answer and justify.')}
+function loadChallenge(levelIdx,qIdx){
+ Lab.level=levelIdx;Lab.q=qIdx;Lab.scans={};Lab.answer=null;
+ const lvl=currentLevel(), q=currentQ();
+ $('missionTitle').textContent=lvl.title;$('labTag').textContent=lvl.tag;$('challengeType').textContent=q.type;$('challengeIcon').textContent=q.icon;$('challengeText').textContent=q.q;$('storyText').textContent='Current challenge: '+q.type+'. Scan thinking skills before answering.';$('latestScan').textContent='Nothing scanned yet.';$('qNo').textContent=(qIdx+1)+'/'+lvl.qs.length;$('concept').textContent='Reasoning questions train students to apply concepts, not just remember them.';$('reasonQuestion').textContent='Answer correctly to unlock justification.';$('reasonOptions').innerHTML='';
+ document.querySelectorAll('.skillBtn').forEach(b=>b.classList.remove('done'));drawLevelButtons();drawChecklist();drawPowerStrip();drawAnswerOptions();update();log('<b>'+q.type+'</b> loaded: '+q.q);coach('Challenge loaded. '+q.q);
+}
+function drawLevelButtons(){let html='';levels.forEach((l,idx)=>{html+='<button class="'+(idx===Lab.level?'active ':'')+(levelSolved(l.id)?'solved':'')+'" onclick="OlympiadLab.goToLevel('+idx+')">'+l.icon+' '+l.title+'</button>'});$('levelButtons').innerHTML=html}
+function levelSolved(id){return levels.find(l=>l.id===id).qs.every((q,idx)=>Lab.solved[id+'_'+idx])}
+function drawChecklist(){let html='';scanKeys.forEach(k=>{html+='<div class="choice '+(Lab.scans[k]?'correct':'')+'"><b>'+k.toUpperCase()+':</b> '+(Lab.scans[k]||'not scanned')+'</div>'});$('checklist').innerHTML=html}
+function drawPowerStrip(){let labels=['Observe clues','Compare features','Justify answer'];let html='';labels.forEach((p,idx)=>{html+='<div class="power '+(Object.keys(Lab.scans).length>idx?'done':'')+'">'+p+'</div>'});$('powerStrip').innerHTML=html}
+function drawAnswerOptions(){const q=currentQ();let html='';q.options.forEach(o=>{html+='<button class="choice" onclick="OlympiadLab.answerMain(&quot;'+o+'&quot;)">'+o+'</button>'});$('answerOptions').innerHTML=html}
+function scannedAll(){return scanKeys.every(k=>Lab.scans[k])}
+function scan(k){
+ const q=currentQ();let msg='';
+ if(k==='observe')msg='Observe the exact words and visible clue in the question.';
+ if(k==='compare')msg='Compare features, category, movement, habitat or pattern.';
+ if(k==='predict')msg='Predict using known links like venation-root or habitat-adaptation.';
+ if(k==='justify')msg='Final answer must have a clear reason: '+q.reason;
+ Lab.scans[k]=msg;const btn=$(k+'Btn');if(btn)btn.classList.add('done');$('latestScan').textContent=k.toUpperCase()+': '+msg;Lab.score+=10;drawChecklist();drawPowerStrip();update();coach(msg);log('<b>Skill scan:</b> '+k+' — '+msg);
+}
+function answerMain(ans){
+ const q=currentQ();document.querySelectorAll('#answerOptions .choice').forEach(b=>{if(b.textContent.trim()===q.answer)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==q.answer)b.classList.add('wrong')});
+ if(!scannedAll()){coach('Scan all thinking skills before answering.');return}
+ if(ans===q.answer){Lab.answer=ans;Lab.score+=60;$('concept').textContent=q.concept;coach('Correct answer. Now justify it.');log('<b>Answer correct:</b> '+q.answer);drawReason()}else{Lab.score=Math.max(0,Lab.score-12);coach('Wrong answer. Recheck the clue and compare features again.')}
+ update();
+}
+function drawReason(){const q=currentQ();$('reasonQuestion').textContent='Why is this answer correct?';let html='';q.reasonOptions.forEach(o=>{html+='<button class="choice" onclick="OlympiadLab.answerReason(&quot;'+o+'&quot;)">'+o+'</button>'});$('reasonOptions').innerHTML=html}
+function answerReason(ans){
+ const lvl=currentLevel(), q=currentQ();document.querySelectorAll('#reasonOptions .choice').forEach(b=>{if(b.textContent.trim()===q.reason)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==q.reason)b.classList.add('wrong')});
+ if(!Lab.answer){coach('Answer the main question first.');return}
+ if(ans===q.reason){const key=lvl.id+'_'+Lab.q;if(!Lab.solved[key])Lab.score+=80;Lab.solved[key]=true;$('concept').textContent=q.concept;coach('Justification correct. '+q.concept);log('<b>Justified:</b> '+q.reason);drawLevelButtons();if(completedAll()){ $('certificate').style.display='block';coach('Excellent. You completed Olympiad Challenge Arena and unlocked the certificate.');$('certificate').scrollIntoView({behavior:'smooth'}); }else setTimeout(nextChallenge,850)}else{Lab.score=Math.max(0,Lab.score-10);coach('Justification not correct. Match your answer with the reason.')}
+ update();
+}
+function completedAll(){let total=0;levels.forEach(l=>total+=l.qs.length);return Object.keys(Lab.solved).length>=total}
+function nextChallenge(){const lvl=currentLevel();if(Lab.q<lvl.qs.length-1){loadChallenge(Lab.level,Lab.q+1)}else if(Lab.level<levels.length-1){loadChallenge(Lab.level+1,0)}else{coach('All challenges visited. Complete any unsolved justification to unlock certificate.')}}
+function update(){const sc=scanKeys.filter(k=>Lab.scans[k]).length;const meter=Math.round(sc/scanKeys.length*100);$('score').textContent=Lab.score;$('scanMeter').textContent=meter+'%';$('scanBar').style.width=meter+'%'}
+function goToLevel(i){loadChallenge(i,0)}
+function hint(){const q=currentQ();if(!scannedAll()){coach('Hint: scan Observe, Compare, Predict and Justify first.');alert('Tap all four thinking-skill buttons.');return}coach('Hint: answer is '+q.answer+'. Reason: '+q.reason);alert('Answer: '+q.answer)}
+function toggleVoice(){Lab.voice=!Lab.voice;$('voiceBtn').textContent=Lab.voice?'🔊 Voice ON':'🔇 Voice OFF';if(Lab.voice)coach('Voice guide is on. Dr AI will guide the Olympiad arena.')}
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&['s','u'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key==='F12')e.preventDefault()});
+window.OlympiadLab={start,scan,answerMain,answerReason,nextChallenge,hint,toggleVoice,goToLevel};
+start();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Classification Card Battle 3D | Dr AI Academy</title>
+<style>
+:root{
+  --panel:rgba(10,28,54,.96);
+  --cyan:#64f4ff; --gold:#ffe066; --green:#8cffc1; --red:#ff8aa0;
+  --text:#eef8ff; --muted:#b7cce5;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;padding:0;font-family:Arial,Segoe UI,sans-serif;color:var(--text);
+  background:
+    radial-gradient(circle at 15% 10%,rgba(100,244,255,.16),transparent 26%),
+    radial-gradient(circle at 85% 10%,rgba(255,224,102,.14),transparent 26%),
+    linear-gradient(135deg,#061123,#123d82 60%,#071c34);
+  overflow-x:hidden;-webkit-text-size-adjust:100%;user-select:none
+}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+.watermark{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.wm{position:absolute;color:rgba(255,255,255,.055);font-size:clamp(28px,4vw,54px);font-weight:1000;transform:rotate(-24deg);white-space:nowrap}
+.cornerMark{position:fixed;right:12px;bottom:12px;z-index:1000;pointer-events:none;color:rgba(255,255,255,.78);background:rgba(4,13,24,.45);border:1px solid rgba(255,255,255,.2);padding:7px 10px;border-radius:999px;font-weight:900}
+.wrap{max-width:1460px;margin:auto;padding:12px;position:relative;z-index:1}
+.panel{background:var(--panel);border:1px solid rgba(100,244,255,.25);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.hero{background:linear-gradient(180deg,rgba(18,61,130,.94),rgba(7,22,48,.97));position:relative;overflow:hidden}
+.hero:after{content:"🃏 🌿 🐾 🔍 🧠 🏆";position:absolute;right:18px;bottom:14px;font-size:32px;letter-spacing:8px;opacity:.22}
+.logo{position:absolute;right:14px;top:14px;background:rgba(0,0,0,.28);border:1px solid rgba(100,244,255,.3);border-radius:16px;padding:8px 11px;text-align:right}
+.logo b{display:block}.logo span{color:var(--cyan);font-size:.74rem;font-weight:900}
+.badge{display:inline-block;background:rgba(100,244,255,.12);border:1px solid rgba(100,244,255,.25);border-radius:999px;color:var(--cyan);font-weight:900;padding:8px 12px;font-size:.78rem}
+h1{font-size:clamp(1.8rem,5vw,3.8rem);line-height:1.04;margin:10px 0 8px;max-width:1050px}
+.sub{line-height:1.55;color:var(--muted);max-width:1080px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:0;border-radius:15px;padding:12px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,var(--cyan),#d9fbff);color:#061123;min-height:46px}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#fff3b0);color:#241400}
+.btn.dark{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff}
+.gameGrid{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:12px;align-items:start}
+.scene{
+  position:relative;min-height:805px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(180deg,#a7e8ff 0,#dff8ff 20%,#72c465 21%,#2f7a3a 48%,#6f4422 49%,#2d190e 100%);
+  border:1px solid rgba(255,255,255,.15);
+}
+.sceneTitle,.labTag{position:absolute;top:14px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:9px 12px;font-weight:900;z-index:10}
+.sceneTitle{left:14px}.labTag{right:14px}
+.battleTable{
+  position:absolute;left:50%;top:108px;transform:translateX(-50%);
+  width:min(74vw,720px);height:540px;border-radius:32px;
+  background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(0,0,0,.18)),radial-gradient(ellipse at 50% 75%,#376e54,#173a2c 68%);
+  border:2px solid rgba(255,255,255,.18);box-shadow:0 18px 34px rgba(0,0,0,.30);z-index:2
+}
+.deck{
+  position:absolute;left:50%;top:44px;transform:translateX(-50%);
+  width:178px;height:234px;border-radius:22px;background:linear-gradient(160deg,#ffe066,#ffb85c 54%,#c65c2c);
+  border:3px solid rgba(255,255,255,.34);box-shadow:0 20px 34px rgba(0,0,0,.3),inset 0 0 22px rgba(255,255,255,.25);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;color:#10223d;text-align:center;font-weight:1000;
+  animation:cardFloat 2.8s infinite ease-in-out
+}
+@keyframes cardFloat{0%,100%{margin-top:0}50%{margin-top:-8px}}
+#cardIcon{font-size:72px;line-height:1}
+#cardName{font-size:1.05rem;margin-top:8px}
+#cardClue{font-size:.78rem;padding:7px;color:#22334d}
+.dropZones{
+  position:absolute;left:4%;right:4%;bottom:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px
+}
+.zone{
+  min-height:118px;border-radius:18px;border:2px dashed rgba(255,255,255,.28);
+  background:rgba(0,0,0,.22);padding:10px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.zone b{color:var(--gold)}
+.zone span{font-size:.82rem;color:var(--muted);margin-top:4px}
+.zone.flash{border-color:rgba(140,255,193,.9);background:rgba(140,255,193,.12)}
+.scanBeam{
+  position:absolute;left:50%;top:80px;transform:translateX(-50%);
+  width:min(60vw,540px);height:610px;z-index:1;
+  background:linear-gradient(180deg,rgba(100,244,255,.05),rgba(100,244,255,.15),rgba(100,244,255,.02));
+  clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);
+  animation:beam 3s infinite ease-in-out;pointer-events:none
+}
+@keyframes beam{0%,100%{opacity:.22}50%{opacity:.68}}
+.levelBadge{
+  position:absolute;left:50%;top:365px;transform:translateX(-50%);
+  background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:9px 14px;
+  font-weight:900;z-index:5;color:var(--cyan)
+}
+.cardDock{
+  position:absolute;left:50%;bottom:24px;transform:translateX(-50%);
+  width:min(68vw,700px);display:grid;grid-template-columns:repeat(4,1fr);gap:8px;z-index:9;
+  padding:10px;border-radius:18px;background:rgba(0,0,0,.30);border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 12px 24px rgba(0,0,0,.24)
+}
+.cardBtn{border:2px solid rgba(255,255,255,.22);background:rgba(255,224,102,.18);color:white;border-radius:999px;min-height:42px;font-weight:900}
+.cardBtn.done{background:rgba(140,255,193,.18);border-color:rgba(140,255,193,.75)}
+.cardRack{
+  position:absolute;left:4%;bottom:22px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.scannerNote{
+  position:absolute;right:4%;bottom:22px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.cardRack h3,.scannerNote h3{margin:4px 0 8px;font-size:1rem}
+.levelGrid{display:grid;gap:8px}
+.levelGrid button{width:100%;text-align:left;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;font-weight:800}
+.levelGrid button.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,224,102,.18)}
+.scannerNote p{margin:6px 0;color:var(--muted);font-size:.93rem;line-height:1.45}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;color:var(--cyan);font-size:22px}
+.bar{height:14px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--green))}
+.infoBox{background:linear-gradient(180deg,rgba(100,244,255,.10),rgba(255,255,255,.04));border:1px solid rgba(100,244,255,.20);border-radius:16px;padding:12px;line-height:1.55;margin-top:10px}
+#coach{background:rgba(255,224,102,.10);border:1px solid rgba(255,224,102,.25);border-radius:14px;padding:10px;font-weight:800;animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(255,224,102,0)}50%{box-shadow:0 0 18px rgba(255,224,102,.18)}}
+.optionGrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+.choice{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:11px;color:#fff;text-align:left;min-height:54px}
+.choice.correct{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.16)}
+.choice.wrong{border-color:rgba(255,138,160,.75);background:rgba(255,138,160,.16)}
+.log{max-height:145px;overflow:auto;background:rgba(0,0,0,.18);border-radius:14px;padding:10px;font-size:.92rem}
+.log p{margin:0 0 8px}
+.cert{display:none;text-align:center;border:2px solid var(--gold)}
+.cert input{width:100%;max-width:360px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;text-align:center}
+.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted)}
+.footer a{color:var(--cyan);font-weight:900;text-decoration:none}
+@media(max-width:1080px){
+  .gameGrid{grid-template-columns:1fr}.logo{position:static;width:max-content;margin:0 0 10px auto}
+  .hero:after{display:none}.controls{display:grid;grid-template-columns:1fr 1fr}.btn{width:100%}
+  .scene{min-height:1060px}
+  .cardRack,.scannerNote{position:relative;left:auto;right:auto;bottom:auto;width:calc(100% - 20px);margin:10px auto}
+  .cardDock{bottom:292px;width:calc(100% - 20px)}
+  .battleTable{height:520px}
+}
+@media(max-width:620px){
+  .wrap{padding:6px}.panel{padding:10px;margin:8px 0;border-radius:16px}
+  h1{font-size:1.46rem}h2{font-size:1.08rem;margin:8px 0}h3{font-size:1rem;margin:8px 0}
+  .controls,.stats{grid-template-columns:1fr}.stat{padding:8px}.stat b{font-size:18px}
+  .scene{min-height:1160px}
+  .battleTable{left:50%;width:92vw;height:530px;top:90px}
+  .deck{width:145px;height:205px}#cardIcon{font-size:58px}#cardName{font-size:.96rem}
+  .dropZones{grid-template-columns:1fr;bottom:16px}.zone{min-height:72px;padding:8px}.zone span{display:none}
+  .levelBadge{top:318px;font-size:.85rem}
+  .cardDock{bottom:318px;width:calc(100% - 16px);grid-template-columns:repeat(2,1fr);gap:7px;padding:8px}
+  .cardBtn{font-size:.78rem;min-height:42px;padding:8px}
+  .cardRack,.scannerNote{font-size:.9rem}.infoBox{font-size:.9rem}
+}
+@media print{
+  .hero,.gameGrid,.footer,.watermark,.cornerMark{display:none!important}
+  .cert{display:block!important;color:#111;background:#fff}
+  .cert input{color:#111;border:0}
+}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div class="watermark"><div class="wm" style="top:5%;left:-8%">Dr AI Academy</div><div class="wm" style="top:30%;left:35%">Dr AI Academy</div><div class="wm" style="top:55%;left:-5%">Dr AI Academy</div><div class="wm" style="top:78%;left:35%">Dr AI Academy</div></div>
+<div class="cornerMark">Dr AI Academy</div>
+
+<div class="wrap">
+<section class="panel hero">
+  <div class="logo"><b>Dr AI Academy</b><span>3D Classification Card Lab</span></div>
+  <div class="badge">CLASS 6 • CHAPTER 2 • GROUPING + CLASSIFICATION</div>
+  <h1>Classification Card Battle 3D:<br>The Living World Sorting Challenge</h1>
+  <p class="sub">A responsive card-battle lab where students classify plants and animals by features, habitats, movement, roots and venation. It strengthens Olympiad-style logic: observe features, compare, group, and justify the answer.</p>
+  <div class="controls">
+    <button class="btn gold" onclick="CardLab.start()">🎮 Start Card Battle</button>
+    <button class="btn dark" onclick="CardLab.nextCard()">🃏 Next Card</button>
+    <button class="btn dark" onclick="CardLab.hint()">💡 Dr AI Hint</button>
+    <button class="btn dark" onclick="CardLab.toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+  </div>
+</section>
+
+<section class="gameGrid">
+<main class="panel">
+<h2 id="missionTitle">Classification Level 1</h2>
+<div class="scene" id="scene">
+  <div class="sceneTitle">3D Sorting Battle Arena</div><div class="labTag" id="labTag">Level: Plant vs Animal</div>
+  <div class="scanBeam"></div>
+  <div class="battleTable">
+    <div class="deck" id="deck">
+      <div id="cardIcon">🌾</div><div id="cardName">Grass</div><div id="cardClue">Soft green stem, does not move place to place.</div>
+    </div>
+    <div class="levelBadge" id="levelBadge">Sort by: Plant / Animal</div>
+    <div class="dropZones" id="dropZones"></div>
+  </div>
+
+  <div class="cardDock">
+    <button class="cardBtn" id="featureBtn" onclick="CardLab.scan('feature')">Feature</button>
+    <button class="cardBtn" id="habitatBtn" onclick="CardLab.scan('habitat')">Habitat</button>
+    <button class="cardBtn" id="motionBtn" onclick="CardLab.scan('motion')">Motion</button>
+    <button class="cardBtn" id="logicBtn" onclick="CardLab.scan('logic')">Logic</button>
+  </div>
+
+  <div class="cardRack"><h3>🧠 Levels</h3><div class="levelGrid" id="levelButtons"></div></div>
+  <div class="scannerNote"><h3>📓 Dr AI Card Notes</h3><p id="storyText">Scan the card, then place it in the correct group.</p><p><b>Latest scan:</b> <span id="latestScan">Nothing scanned yet.</span></p><p><b>Learning habit:</b> classification means grouping by similarities and differences.</p></div>
+</div>
+</main>
+
+<aside class="panel">
+<div class="stats"><div class="stat"><b id="score">0</b>Score</div><div class="stat"><b id="cardNo">1/5</b>Card</div><div class="stat"><b id="scanMeter">0%</b>Scan</div></div><div class="bar"><span id="scanBar"></span></div>
+<div class="infoBox"><h3>🤖 Dr AI Live Guide</h3><p id="coach">Scan the card features, then sort it into the correct group.</p></div>
+<div class="infoBox"><b>Step 1: Card Scan Checklist</b><div id="checklist"></div></div>
+<div class="infoBox"><b>Step 2: Choose the Correct Group</b><div class="optionGrid" id="groupOptions"></div></div>
+<div class="infoBox"><b>Step 3: Reasoning Challenge</b><p id="questionText">Sort the card to unlock reasoning question.</p><div class="optionGrid" id="reasonOptions"></div></div>
+<div class="infoBox"><b>Science Result</b><p id="concept">Living things can be grouped by common features.</p></div>
+<div class="infoBox"><b>Mission Log</b><div class="log" id="log"></div></div>
+</aside>
+</section>
+
+<section class="panel cert" id="certificate">
+  <div style="font-size:54px">🃏🔍🏅</div><h2>Certificate of Classification Card Battle Mastery</h2>
+  <p>This certifies that</p><input placeholder="Enter Student Name">
+  <p>has completed <b>Classification Card Battle 3D: The Living World Sorting Challenge</b></p>
+  <p>Skills: classification • grouping • plant features • animal movement • habitat • venation-root link • scientific reasoning</p>
+  <p><b>Developed by Dr AI Academy</b></p><button class="btn gold" onclick="window.print()">Print / Save Certificate</button>
+</section>
+<footer class="panel footer"><div>Developed by <b>Dr AI Academy</b> • Class 6 Science guided simulation</div><div><a href="https://courses.draiacademy.com" target="_blank">AI Courses @ Dr AI Academy</a></div></footer>
+</div>
+
+<script>
+(function(){
+const Lab={voice:true,score:0,level:0,card:0,scans:{},solved:{},group:null};
+const levels=[
+ {id:'basic',title:'Level 1: Plant vs Animal',tag:'Level: Plant vs Animal',sort:'Plant / Animal',
+  zones:['Plant','Animal','Not living'],
+  cards:[
+   {name:'Grass',icon:'🌾',group:'Plant',clue:'Soft green stem, does not move from place to place.',feature:'Small plant with soft green stem.',habitat:'Land habitat.',motion:'No movement from place to place.',logic:'Plants make their own food and remain fixed.',question:'Why is grass grouped as plant?',answer:'It is fixed and has plant features',options:['It is fixed and has plant features','It has fins','It flies']},
+   {name:'Fish',icon:'🐟',group:'Animal',clue:'Lives in water and swims using fins.',feature:'Has body parts for swimming.',habitat:'Water habitat.',motion:'Swims using fins and tail.',logic:'It moves from place to place and needs food.',question:'Why is fish grouped as animal?',answer:'It moves and needs food',options:['It moves and needs food','It has soft stem','It has root nodules']},
+   {name:'Tulsi',icon:'🌿',group:'Plant',clue:'Has stem and leaves, grows fixed in soil.',feature:'Plant with stem and leaves.',habitat:'Land habitat.',motion:'Does not move place to place.',logic:'It is a plant because it grows fixed in soil.',question:'Which feature supports plant grouping?',answer:'Stem and leaves',options:['Stem and leaves','Wings','Fins']},
+   {name:'Ant',icon:'🐜',group:'Animal',clue:'Small animal moving with six legs.',feature:'Insect-like body with legs.',habitat:'Soil and ground.',motion:'Walks/crawls using legs.',logic:'It is animal because it moves and feeds.',question:'What helps ant move?',answer:'Six legs',options:['Six legs','Taproot','Parallel venation']},
+   {name:'Stone',icon:'🪨',group:'Not living',clue:'Does not grow, breathe, feed or reproduce.',feature:'No living body parts.',habitat:'Can be found on ground but not living.',motion:'No self-movement.',logic:'It does not show life processes.',question:'Why is stone not living?',answer:'It does not show life processes',options:['It does not show life processes','It has flowers','It swims']}
+  ]},
+ {id:'plantType',title:'Level 2: Plant Groups',tag:'Level: Herb / Shrub / Tree',sort:'Plant type',
+  zones:['Herb','Shrub','Tree'],
+  cards:[
+   {name:'Grass',icon:'🌾',group:'Herb',clue:'Small plant with soft green stem.',feature:'Soft green stem.',habitat:'Land.',motion:'Fixed plant.',logic:'Small soft-stem plant is herb-like.',question:'Why is grass herb-like?',answer:'Soft green stem',options:['Soft green stem','Thick woody trunk','Fins']},
+   {name:'Hibiscus',icon:'🌺',group:'Shrub',clue:'Medium plant, hard stem, branches near base.',feature:'Hard stem with branches near base.',habitat:'Garden.',motion:'Fixed plant.',logic:'Bushy medium plant is a shrub.',question:'What makes hibiscus shrub-like?',answer:'Branches near the base',options:['Branches near the base','Fins and tail','No stem']},
+   {name:'Mango Tree',icon:'🌳',group:'Tree',clue:'Tall plant with thick woody trunk.',feature:'Thick woody trunk.',habitat:'Land.',motion:'Fixed plant.',logic:'Tall woody plant is a tree.',question:'What makes mango a tree?',answer:'Thick woody trunk',options:['Thick woody trunk','Soft grass stem','Six legs']},
+   {name:'Rose',icon:'🌹',group:'Shrub',clue:'Hard stem and bushy branching.',feature:'Bushy hard stem.',habitat:'Garden.',motion:'Fixed plant.',logic:'Bushy plant with hard stem is shrub.',question:'Rose is grouped as what?',answer:'Shrub',options:['Shrub','Fish','Stone']},
+   {name:'Neem',icon:'🌳',group:'Tree',clue:'Tall plant, woody trunk, branches above.',feature:'Tall woody stem.',habitat:'Land.',motion:'Fixed plant.',logic:'Tall woody plant with branches above is a tree.',question:'Neem is grouped as what?',answer:'Tree',options:['Tree','Herb','Insect']}
+  ]},
+ {id:'movement',title:'Level 3: Animal Movement',tag:'Level: Walk / Fly / Swim',sort:'Movement type',
+  zones:['Walk / Crawl','Fly','Swim'],
+  cards:[
+   {name:'Bird',icon:'🐦',group:'Fly',clue:'Uses wings and legs.',feature:'Wings and legs.',habitat:'Trees and air.',motion:'Flies and walks.',logic:'Wings make flying possible.',question:'What helps bird fly?',answer:'Wings',options:['Wings','Root','Stem']},
+   {name:'Fish',icon:'🐟',group:'Swim',clue:'Uses fins and tail in water.',feature:'Fins and tail.',habitat:'Water.',motion:'Swims.',logic:'Fins and tail help swimming.',question:'What helps fish swim?',answer:'Fins and tail',options:['Fins and tail','Wings','Branches']},
+   {name:'Ant',icon:'🐜',group:'Walk / Crawl',clue:'Moves using six legs.',feature:'Six legs.',habitat:'Soil/ground.',motion:'Walks/crawls.',logic:'Legs help walking.',question:'What helps ant walk?',answer:'Six legs',options:['Six legs','Fins','Taproot']},
+   {name:'Snake',icon:'🐍',group:'Walk / Crawl',clue:'Moves by slithering.',feature:'Muscular body and scales.',habitat:'Land.',motion:'Crawls/slithers.',logic:'Body muscles and scales help movement.',question:'Snake moves mainly using what?',answer:'Muscular body and scales',options:['Muscular body and scales','Wings','Leaf veins']},
+   {name:'Butterfly',icon:'🦋',group:'Fly',clue:'Moves from flower to flower.',feature:'Wings.',habitat:'Garden/air.',motion:'Flies.',logic:'Wings help flight.',question:'Butterfly moves by?',answer:'Flying',options:['Flying','Swimming only','No movement']}
+  ]},
+ {id:'rootLeaf',title:'Level 4: Root + Venation Link',tag:'Level: Root and Leaf Pattern',sort:'Pattern link',
+  zones:['Taproot + Reticulate','Fibrous + Parallel','Check again'],
+  cards:[
+   {name:'Mango',icon:'🥭',group:'Taproot + Reticulate',clue:'Network-like leaf veins.',feature:'Reticulate venation.',habitat:'Land.',motion:'Plant remains fixed.',logic:'Reticulate venation usually links with taproot.',question:'Reticulate venation usually links with?',answer:'Taproot',options:['Taproot','Fibrous root','Fins']},
+   {name:'Grass',icon:'🌾',group:'Fibrous + Parallel',clue:'Narrow leaves with parallel veins.',feature:'Parallel venation.',habitat:'Land.',motion:'Fixed plant.',logic:'Parallel venation usually links with fibrous roots.',question:'Parallel venation usually links with?',answer:'Fibrous root',options:['Fibrous root','Taproot','No root']},
+   {name:'Banana',icon:'🍌',group:'Fibrous + Parallel',clue:'Large leaf with parallel veins.',feature:'Parallel venation.',habitat:'Land.',motion:'Fixed plant.',logic:'Parallel venation points toward fibrous roots.',question:'Banana leaf venation is mostly?',answer:'Parallel',options:['Parallel','Reticulate','Absent']},
+   {name:'Hibiscus',icon:'🌺',group:'Taproot + Reticulate',clue:'Branching vein network.',feature:'Reticulate venation.',habitat:'Garden.',motion:'Fixed plant.',logic:'Reticulate venation points toward taproot.',question:'Hibiscus leaf has which pattern?',answer:'Reticulate',options:['Reticulate','Parallel','No pattern']},
+   {name:'Wheat',icon:'🌾',group:'Fibrous + Parallel',clue:'Narrow leaves and fibrous root.',feature:'Parallel venation.',habitat:'Field.',motion:'Fixed plant.',logic:'Wheat commonly shows fibrous roots and parallel venation.',question:'Wheat usually has what root?',answer:'Fibrous root',options:['Fibrous root','Taproot','No root']}
+  ]}
+];
+const scanKeys=['feature','habitat','motion','logic'];
+function $(id){return document.getElementById(id)}
+function say(t){if(!Lab.voice)return;try{if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=.94;u.pitch=1.04;speechSynthesis.speak(u)}}catch(e){}}
+function coach(t){$('coach').textContent=t;say(t)}
+function log(t){$('log').innerHTML='<p>'+t+'</p>'+$('log').innerHTML}
+function start(){Lab.score=0;Lab.level=0;Lab.card=0;Lab.solved={};loadLevel(0);coach('Card battle started. Scan each card, then sort it into the correct group.')}
+function currentLevel(){return levels[Lab.level]}
+function currentCard(){return currentLevel().cards[Lab.card]}
+function loadLevel(i){Lab.level=i;Lab.card=0;loadCard(0)}
+function loadCard(i){
+ Lab.card=i;Lab.scans={};Lab.group=null;
+ const level=currentLevel(), c=currentCard();
+ $('missionTitle').textContent=level.title;$('labTag').textContent=level.tag;$('levelBadge').textContent='Sort by: '+level.sort;
+ $('cardIcon').textContent=c.icon;$('cardName').textContent=c.name;$('cardClue').textContent=c.clue;
+ $('storyText').textContent='Current card: '+c.name+'. Scan features before grouping.';$('latestScan').textContent='Nothing scanned yet.';
+ $('cardNo').textContent=(i+1)+'/'+level.cards.length;$('concept').textContent='Living things can be grouped by common features.';
+ document.querySelectorAll('.cardBtn').forEach(b=>b.classList.remove('done'));
+ drawLevelButtons();drawDropZones();drawChecklist();drawGroupOptions();drawReason(false);update();
+ log('<b>'+c.name+'</b> card loaded in '+level.title+'.');coach('Card loaded: '+c.name+'. '+c.clue);
+}
+function drawLevelButtons(){let html='';levels.forEach((l,idx)=>{html+='<button class="'+(idx===Lab.level?'active':'')+'" onclick="CardLab.goToLevel('+idx+')">'+l.title+'</button>'});$('levelButtons').innerHTML=html}
+function drawDropZones(){const level=currentLevel();let html='';level.zones.forEach(z=>{html+='<button class="zone" onclick="CardLab.pickGroup(&quot;'+z+'&quot;)"><b>'+z+'</b><span>Tap to place card here</span></button>'});$('dropZones').innerHTML=html}
+function drawChecklist(){let html='';scanKeys.forEach(k=>{html+='<div class="choice '+(Lab.scans[k]?'correct':'')+'"><b>'+k.toUpperCase()+':</b> '+(Lab.scans[k]||'not scanned')+'</div>'});$('checklist').innerHTML=html}
+function drawGroupOptions(){const level=currentLevel();let html='';level.zones.forEach(z=>{html+='<button class="choice" onclick="CardLab.pickGroup(&quot;'+z+'&quot;)"><b>'+z+'</b></button>'});$('groupOptions').innerHTML=html}
+function drawReason(open){if(!open){$('questionText').textContent='Sort the card to unlock reasoning question.';$('reasonOptions').innerHTML='';return}const c=currentCard();$('questionText').textContent=c.question;let html='';c.options.forEach(o=>{html+='<button class="choice" onclick="CardLab.answerReason(&quot;'+o+'&quot;)">'+o+'</button>'});$('reasonOptions').innerHTML=html}
+function scannedAll(){return scanKeys.every(k=>Lab.scans[k])}
+function scan(k){
+ const c=currentCard();const msg=c[k];Lab.scans[k]=msg;const btn=$(k+'Btn');if(btn)btn.classList.add('done');$('latestScan').textContent=k.toUpperCase()+': '+msg;Lab.score+=10;drawChecklist();update();coach(msg);log('<b>Scan:</b> '+c.name+' '+k+' — '+msg);
+}
+function pickGroup(ans){
+ const c=currentCard();document.querySelectorAll('#groupOptions .choice, #dropZones .zone').forEach(b=>{const t=b.querySelector('b')?b.querySelector('b').textContent.trim():b.textContent.trim();if(t===c.group)b.classList.add('correct','flash');else if(t===ans&&ans!==c.group)b.classList.add('wrong')});
+ if(!scannedAll()){coach('Scan Feature, Habitat, Motion and Logic before grouping.');return}
+ if(ans===c.group){Lab.group=ans;Lab.score+=60;$('concept').textContent='Correct group: '+c.group+'. '+c.logic;coach('Correct group. '+c.logic);log('<b>Grouped:</b> '+c.name+' → '+c.group);drawReason(true)}else{Lab.score=Math.max(0,Lab.score-12);coach('Not correct. Compare the scanned features again.')}
+ update();
+}
+function answerReason(ans){
+ const c=currentCard();document.querySelectorAll('#reasonOptions .choice').forEach(b=>{if(b.textContent.trim()===c.answer)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==c.answer)b.classList.add('wrong')});
+ if(ans===c.answer){
+  const key=currentLevel().id+'_'+c.name;
+  if(!Lab.solved[key])Lab.score+=70;Lab.solved[key]=true;
+  $('concept').textContent='Reasoning correct: '+c.logic;
+  coach('Reasoning correct. '+c.logic);
+  log('<b>Reasoning solved:</b> '+c.name+' — '+c.logic);
+  if(completedAll()){ $('certificate').style.display='block';coach('Excellent. You completed Classification Card Battle 3D and unlocked the certificate.');$('certificate').scrollIntoView({behavior:'smooth'}); }
+  else setTimeout(nextCard,850);
+ }else{Lab.score=Math.max(0,Lab.score-10);coach('Reasoning not correct. Recheck the card clue.')}
+ update();
+}
+function completedAll(){let total=0;levels.forEach(l=>total+=l.cards.length);return Object.keys(Lab.solved).length>=total}
+function nextCard(){const level=currentLevel();if(Lab.card<level.cards.length-1){loadCard(Lab.card+1)}else if(Lab.level<levels.length-1){loadLevel(Lab.level+1)}else{coach('All cards in all levels are complete. Certificate is ready if every reasoning question is solved.')}}
+function update(){const sc=scanKeys.filter(k=>Lab.scans[k]).length;const meter=Math.round(sc/scanKeys.length*100);$('score').textContent=Lab.score;$('scanMeter').textContent=meter+'%';$('scanBar').style.width=meter+'%'}
+function goToLevel(i){loadLevel(i)}
+function hint(){const c=currentCard();if(!scannedAll()){coach('Hint: scan all four buttons: Feature, Habitat, Motion and Logic.');alert('Tap all four scan buttons.');return}coach('Hint: '+c.name+' belongs to '+c.group+'. Reason: '+c.logic);alert(c.name+' → '+c.group)}
+function toggleVoice(){Lab.voice=!Lab.voice;$('voiceBtn').textContent=Lab.voice?'🔊 Voice ON':'🔇 Voice OFF';if(Lab.voice)coach('Voice guide is on. Dr AI will guide the card battle.')}
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&['s','u'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key==='F12')e.preventDefault()});
+window.CardLab={start,scan,pickGroup,answerReason,nextCard,hint,toggleVoice,goToLevel};
+start();
+})();
+</script>
+</body>
+</html>
