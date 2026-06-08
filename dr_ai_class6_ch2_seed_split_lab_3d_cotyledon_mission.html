@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seed Split Lab 3D | Dr AI Academy</title>
+<style>
+:root{
+  --panel:rgba(10,28,54,.96);
+  --cyan:#64f4ff; --gold:#ffe066; --green:#8cffc1; --red:#ff8aa0;
+  --text:#eef8ff; --muted:#b7cce5;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;padding:0;font-family:Arial,Segoe UI,sans-serif;color:var(--text);
+  background:
+    radial-gradient(circle at 15% 10%,rgba(100,244,255,.16),transparent 26%),
+    radial-gradient(circle at 85% 10%,rgba(255,224,102,.14),transparent 26%),
+    linear-gradient(135deg,#061123,#123d82 60%,#071c34);
+  overflow-x:hidden;-webkit-text-size-adjust:100%;user-select:none
+}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+.watermark{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.wm{position:absolute;color:rgba(255,255,255,.055);font-size:clamp(28px,4vw,54px);font-weight:1000;transform:rotate(-24deg);white-space:nowrap}
+.cornerMark{position:fixed;right:12px;bottom:12px;z-index:1000;pointer-events:none;color:rgba(255,255,255,.78);background:rgba(4,13,24,.45);border:1px solid rgba(255,255,255,.2);padding:7px 10px;border-radius:999px;font-weight:900}
+.wrap{max-width:1460px;margin:auto;padding:12px;position:relative;z-index:1}
+.panel{background:var(--panel);border:1px solid rgba(100,244,255,.25);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.hero{background:linear-gradient(180deg,rgba(18,61,130,.94),rgba(7,22,48,.97));position:relative;overflow:hidden}
+.hero:after{content:"🫘 🌽 🌱 🔍 🍃 🧠";position:absolute;right:18px;bottom:14px;font-size:32px;letter-spacing:8px;opacity:.22}
+.logo{position:absolute;right:14px;top:14px;background:rgba(0,0,0,.28);border:1px solid rgba(100,244,255,.3);border-radius:16px;padding:8px 11px;text-align:right}
+.logo b{display:block}.logo span{color:var(--cyan);font-size:.74rem;font-weight:900}
+.badge{display:inline-block;background:rgba(100,244,255,.12);border:1px solid rgba(100,244,255,.25);border-radius:999px;color:var(--cyan);font-weight:900;padding:8px 12px;font-size:.78rem}
+h1{font-size:clamp(1.8rem,5vw,3.8rem);line-height:1.04;margin:10px 0 8px;max-width:1050px}
+.sub{line-height:1.55;color:var(--muted);max-width:1080px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:0;border-radius:15px;padding:12px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,var(--cyan),#d9fbff);color:#061123;min-height:46px}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#fff3b0);color:#241400}
+.btn.dark{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff}
+.gameGrid{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:12px;align-items:start}
+.scene{
+  position:relative;min-height:760px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(180deg,#a7e8ff 0,#dff8ff 23%,#8bd37c 24%,#4d8d3f 45%,#774720 46%,#2d190e 100%);
+  border:1px solid rgba(255,255,255,.15);
+}
+.sceneTitle,.labTag{position:absolute;top:14px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:9px 12px;font-weight:900;z-index:8}
+.sceneTitle{left:14px}.labTag{right:14px}
+.scanBeam{
+  position:absolute;left:50%;top:90px;transform:translateX(-50%);
+  width:min(60vw,540px);height:610px;z-index:1;
+  background:linear-gradient(180deg,rgba(100,244,255,.05),rgba(100,244,255,.20),rgba(100,244,255,.02));
+  clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);
+  animation:beam 3s infinite ease-in-out;pointer-events:none
+}
+@keyframes beam{0%,100%{opacity:.35}50%{opacity:.88}}
+.labTable{
+  position:absolute;left:50%;bottom:160px;transform:translateX(-50%);
+  width:min(68vw,620px);height:330px;border-radius:28px;
+  background:linear-gradient(180deg,#8fa2b8,#586a7d 42%,#344255);
+  border:3px solid rgba(255,255,255,.22);z-index:3;box-shadow:0 18px 30px rgba(0,0,0,.28)
+}
+.tableTop{
+  position:absolute;left:5%;right:5%;top:28px;height:58px;border-radius:18px;
+  background:rgba(9,25,44,.62);border:1px solid rgba(255,255,255,.15);
+  display:grid;place-items:center;font-weight:900;color:var(--cyan)
+}
+.seedStage{
+  position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);
+  width:min(54vw,420px);height:250px;z-index:4
+}
+.seedShell{
+  position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
+  width:250px;height:160px;border-radius:55% 45% 52% 48%;
+  background:linear-gradient(135deg,#c9853e,#8f4a22 70%);
+  border:3px solid rgba(255,255,255,.25);box-shadow:0 18px 28px rgba(0,0,0,.25),inset 0 0 22px rgba(255,255,255,.12);
+  animation:seedFloat 3s infinite ease-in-out
+}
+@keyframes seedFloat{0%,100%{margin-top:0}50%{margin-top:-8px}}
+.seedShell.split .leftHalf,.seedShell.split .rightHalf{display:block}
+.leftHalf,.rightHalf{
+  position:absolute;top:0;width:50%;height:100%;display:none;
+  background:linear-gradient(135deg,#f0c279,#ad6b36);border:2px solid rgba(255,255,255,.22)
+}
+.leftHalf{left:-70px;border-radius:70% 20% 20% 70%;transform:rotate(-14deg)}
+.rightHalf{right:-70px;border-radius:20% 70% 70% 20%;transform:rotate(14deg)}
+.embryo{
+  position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);font-size:54px;display:none;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.25));
+}
+.seedShell.split .embryo{display:block}
+.cotLabel{
+  position:absolute;z-index:6;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;padding:8px 10px;font-weight:900
+}
+#cotLabel{left:50%;top:108px;transform:translateX(-50%);display:none}
+.seedShell.split ~ #cotLabel{display:block}
+.plantPreview{
+  position:absolute;right:6%;top:118px;width:110px;height:135px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);display:grid;place-items:center;text-align:center;font-weight:900;z-index:5
+}
+.previewIcon{font-size:48px;display:block}
+.scanDock{
+  position:absolute;left:50%;bottom:28px;transform:translateX(-50%);
+  width:min(62vw,600px);display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  z-index:9;padding:10px;border-radius:18px;background:rgba(0,0,0,.30);border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 12px 24px rgba(0,0,0,.24)
+}
+.scanBtn{border:2px solid rgba(255,255,255,.22);background:rgba(255,224,102,.18);color:white;border-radius:999px;min-height:42px;font-weight:900;box-shadow:0 0 18px rgba(255,224,102,.16)}
+.scanBtn.done{background:rgba(140,255,193,.18);border-color:rgba(140,255,193,.75)}
+.seedRack{
+  position:absolute;left:4%;bottom:22px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.scannerNote{
+  position:absolute;right:4%;bottom:22px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.seedRack h3,.scannerNote h3{margin:4px 0 8px;font-size:1rem}
+.seedGrid{display:grid;gap:8px}
+.seedGrid button{width:100%;text-align:left;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;font-weight:800}
+.seedGrid button.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,224,102,.18)}
+.scannerNote p{margin:6px 0;color:var(--muted);font-size:.93rem;line-height:1.45}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;color:var(--cyan);font-size:22px}
+.bar{height:14px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--green))}
+.infoBox{background:linear-gradient(180deg,rgba(100,244,255,.10),rgba(255,255,255,.04));border:1px solid rgba(100,244,255,.20);border-radius:16px;padding:12px;line-height:1.55;margin-top:10px}
+#coach{background:rgba(255,224,102,.10);border:1px solid rgba(255,224,102,.25);border-radius:14px;padding:10px;font-weight:800;animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(255,224,102,0)}50%{box-shadow:0 0 18px rgba(255,224,102,.18)}}
+.optionGrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+.choice{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:11px;color:#fff;text-align:left;min-height:54px}
+.choice.correct{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.16)}
+.choice.wrong{border-color:rgba(255,138,160,.75);background:rgba(255,138,160,.16)}
+.log{max-height:145px;overflow:auto;background:rgba(0,0,0,.18);border-radius:14px;padding:10px;font-size:.92rem}
+.log p{margin:0 0 8px}
+.cert{display:none;text-align:center;border:2px solid var(--gold)}
+.cert input{width:100%;max-width:360px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;text-align:center}
+.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted)}
+.footer a{color:var(--cyan);font-weight:900;text-decoration:none}
+@media(max-width:1080px){
+  .gameGrid{grid-template-columns:1fr}.logo{position:static;width:max-content;margin:0 0 10px auto}
+  .hero:after{display:none}.controls{display:grid;grid-template-columns:1fr 1fr}.btn{width:100%}
+  .scene{min-height:1020px}
+  .labTable{bottom:410px}.scanDock{bottom:298px;width:calc(100% - 20px);grid-template-columns:repeat(4,1fr)}
+  .seedRack,.scannerNote{position:relative;left:auto;right:auto;bottom:auto;width:calc(100% - 20px);margin:10px auto}
+}
+@media(max-width:620px){
+  .wrap{padding:6px}.panel{padding:10px;margin:8px 0;border-radius:16px}
+  h1{font-size:1.46rem}h2{font-size:1.08rem;margin:8px 0}h3{font-size:1rem;margin:8px 0}
+  .controls,.stats{grid-template-columns:1fr}.stat{padding:8px}.stat b{font-size:18px}
+  .scene{min-height:1100px}
+  .labTable{width:90vw;height:315px;bottom:455px}
+  .seedStage{width:88vw}.seedShell{width:190px;height:130px}.leftHalf{left:-48px}.rightHalf{right:-48px}.embryo{font-size:42px}
+  .plantPreview{right:4%;top:118px;width:92px;height:118px;font-size:.8rem}.previewIcon{font-size:38px}
+  .scanDock{bottom:312px;width:calc(100% - 16px);grid-template-columns:repeat(2,1fr);gap:7px;padding:8px}
+  .scanBtn{font-size:.78rem;min-height:42px;padding:8px}
+  .seedRack,.scannerNote{font-size:.9rem}.infoBox{font-size:.9rem}
+}
+@media print{
+  .hero,.gameGrid,.footer,.watermark,.cornerMark{display:none!important}
+  .cert{display:block!important;color:#111;background:#fff}
+  .cert input{color:#111;border:0}
+}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div class="watermark"><div class="wm" style="top:5%;left:-8%">Dr AI Academy</div><div class="wm" style="top:30%;left:35%">Dr AI Academy</div><div class="wm" style="top:55%;left:-5%">Dr AI Academy</div><div class="wm" style="top:78%;left:35%">Dr AI Academy</div></div>
+<div class="cornerMark">Dr AI Academy</div>
+
+<div class="wrap">
+<section class="panel hero">
+  <div class="logo"><b>Dr AI Academy</b><span>3D Seed Classification Lab</span></div>
+  <div class="badge">CLASS 6 • CHAPTER 2 • SEEDS • MONOCOT AND DICOT</div>
+  <h1>Seed Split Lab 3D:<br>The Cotyledon Mystery Mission</h1>
+  <p class="sub">A responsive 3D-style seed lab where students split virtual seeds, count cotyledons, connect seed type with root and venation, and build strong observation-based classification skills.</p>
+  <div class="controls">
+    <button class="btn gold" onclick="SeedLab.start()">🎮 Start Seed Lab</button>
+    <button class="btn dark" onclick="SeedLab.splitSeed()">🔪 Split Seed</button>
+    <button class="btn dark" onclick="SeedLab.hint()">💡 Dr AI Hint</button>
+    <button class="btn dark" onclick="SeedLab.toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+  </div>
+</section>
+
+<section class="gameGrid">
+<main class="panel">
+<h2 id="missionTitle">Seed Scan 1</h2>
+<div class="scene" id="scene">
+  <div class="sceneTitle">3D Seed Split Scanner</div><div class="labTag" id="labTag">Seed ID: Bean</div>
+  <div class="scanBeam"></div>
+  <div class="labTable">
+    <div class="tableTop">Cotyledon Analysis Chamber</div>
+    <div class="plantPreview"><span class="previewIcon" id="previewIcon">🌱</span><span id="previewText">Plant Link</span></div>
+    <div class="seedStage">
+      <div class="seedShell" id="seedShell">
+        <div class="leftHalf"></div><div class="rightHalf"></div><div class="embryo" id="embryo">🌱</div>
+      </div>
+      <div class="cotLabel" id="cotLabel">Cotyledons visible</div>
+    </div>
+    <div class="scanDock">
+      <button class="scanBtn" id="coatBtn" onclick="SeedLab.scan('coat')">Seed Coat</button>
+      <button class="scanBtn" id="splitBtn" onclick="SeedLab.scan('split')">Split View</button>
+      <button class="scanBtn" id="cotBtn" onclick="SeedLab.scan('cotyledon')">Cotyledon</button>
+      <button class="scanBtn" id="embryoBtn" onclick="SeedLab.scan('embryo')">Embryo</button>
+    </div>
+  </div>
+
+  <div class="seedRack"><h3>🫘 Seed Rack</h3><div class="seedGrid" id="seedButtons"></div></div>
+  <div class="scannerNote"><h3>📓 Seed Scanner Notes</h3><p id="storyText">Select a seed and split it carefully.</p><p><b>Latest scan:</b> <span id="latestScan">Nothing scanned yet.</span></p><p><b>Learning habit:</b> count cotyledons first, then predict root and venation.</p></div>
+</div>
+</main>
+
+<aside class="panel">
+<div class="stats"><div class="stat"><b id="score">0</b>Score</div><div class="stat"><b id="seedNo">1/5</b>Seed</div><div class="stat"><b id="scanMeter">0%</b>Scan</div></div><div class="bar"><span id="scanBar"></span></div>
+<div class="infoBox"><h3>🤖 Dr AI Live Guide</h3><p id="coach">Split the seed, count cotyledons, then classify as monocot or dicot.</p></div>
+<div class="infoBox"><b>Step 1: Seed Scan Checklist</b><div id="checklist"></div></div>
+<div class="infoBox"><b>Step 2: Identify Seed Type</b><div class="optionGrid" id="typeOptions"></div></div>
+<div class="infoBox"><b>Step 3: Predict Root + Venation</b><div class="optionGrid" id="linkOptions"></div></div>
+<div class="infoBox"><b>Step 4: Reasoning Challenge</b><p id="questionText">Scan and classify to unlock reasoning question.</p><div class="optionGrid" id="reasonOptions"></div></div>
+<div class="infoBox"><b>Science Result</b><p id="concept">Seeds may have one or two cotyledons. This connects with root and leaf patterns.</p></div>
+<div class="infoBox"><b>Mission Log</b><div class="log" id="log"></div></div>
+</aside>
+</section>
+
+<section class="panel cert" id="certificate">
+  <div style="font-size:54px">🫘🌱🏅</div><h2>Certificate of Seed Split Lab Mastery</h2>
+  <p>This certifies that</p><input placeholder="Enter Student Name">
+  <p>has completed <b>Seed Split Lab 3D: The Cotyledon Mystery Mission</b></p>
+  <p>Skills: cotyledons • monocot • dicot • embryo • seed coat • taproot • fibrous root • venation prediction</p>
+  <p><b>Developed by Dr AI Academy</b></p><button class="btn gold" onclick="window.print()">Print / Save Certificate</button>
+</section>
+<footer class="panel footer"><div>Developed by <b>Dr AI Academy</b> • Class 6 Science guided simulation</div><div><a href="https://courses.draiacademy.com" target="_blank">AI Courses @ Dr AI Academy</a></div></footer>
+</div>
+
+<script>
+(function(){
+const Lab={voice:true,score:0,index:0,scans:{},solved:{},type:null,link:null,split:false};
+const seeds=[
+ {id:'bean',name:'Bean Seed',icon:'🫘',type:'Dicot',cotyledon:'two cotyledons',link:'Taproot + Reticulate venation',story:'Bean seed splits into two parts. It is a classic dicot example.',concept:'Dicot seeds have two cotyledons. They usually connect with taproot and reticulate venation.',question:'Why is bean called dicot?',answer:'Because it has two cotyledons',options:['Because it has two cotyledons','Because it has one cotyledon','Because it has no embryo'],plant:'🌱'},
+ {id:'gram',name:'Gram Seed',icon:'🟤',type:'Dicot',cotyledon:'two cotyledons',link:'Taproot + Reticulate venation',story:'Soaked gram splits into two halves, showing two cotyledons.',concept:'Gram is dicot because it has two cotyledons. Dicot plants commonly show taproot and reticulate venation.',question:'What do two seed halves represent?',answer:'Two cotyledons',options:['Two cotyledons','Two flowers','Two roots'],plant:'🌿'},
+ {id:'maize',name:'Maize Seed',icon:'🌽',type:'Monocot',cotyledon:'one cotyledon',link:'Fibrous root + Parallel venation',story:'Maize seed does not split into two equal halves like gram. It is a monocot.',concept:'Monocot seeds have one cotyledon. They usually connect with fibrous roots and parallel venation.',question:'Which root type is usually linked with monocots?',answer:'Fibrous root',options:['Fibrous root','Taproot','No root'],plant:'🌽'},
+ {id:'rice',name:'Rice Grain',icon:'🌾',type:'Monocot',cotyledon:'one cotyledon',link:'Fibrous root + Parallel venation',story:'Rice is a monocot plant with narrow leaves and parallel venation.',concept:'Rice is monocot. Monocots usually have one cotyledon, fibrous root and parallel venation.',question:'Which leaf pattern is common in rice?',answer:'Parallel venation',options:['Parallel venation','Reticulate venation','No venation'],plant:'🌾'},
+ {id:'pea',name:'Pea Seed',icon:'🫛',type:'Dicot',cotyledon:'two cotyledons',link:'Taproot + Reticulate venation',story:'Pea is a dicot seed and also links to root nodules in later plant growth.',concept:'Pea is dicot and generally links with taproot and reticulate venation. In legumes, root nodules may also appear.',question:'Which plant group does pea seed belong to here?',answer:'Dicot',options:['Dicot','Monocot','Non-living'],plant:'🫛'}
+];
+const scanKeys=['coat','split','cotyledon','embryo'];
+function $(id){return document.getElementById(id)}
+function say(t){if(!Lab.voice)return;try{if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=.94;u.pitch=1.04;speechSynthesis.speak(u)}}catch(e){}}
+function coach(t){$('coach').textContent=t;say(t)}
+function log(t){$('log').innerHTML='<p>'+t+'</p>'+$('log').innerHTML}
+function start(){Lab.score=0;Lab.index=0;Lab.solved={};loadSeed(0);coach('Seed lab started. Split the seed and count cotyledons.')}
+function loadSeed(i){
+ Lab.index=i;Lab.scans={};Lab.type=null;Lab.link=null;Lab.split=false;
+ const s=seeds[i];$('missionTitle').textContent='Seed Scan '+(i+1)+': '+s.name;$('labTag').textContent='Seed ID: '+s.name;$('storyText').textContent=s.story;$('latestScan').textContent='Nothing scanned yet.';$('seedNo').textContent=(i+1)+'/'+seeds.length;$('concept').textContent='Seeds may have one or two cotyledons. This connects with root and leaf patterns.';$('previewIcon').textContent=s.plant;$('previewText').textContent=s.link;
+ $('seedShell').className='seedShell';document.querySelectorAll('.scanBtn').forEach(b=>b.classList.remove('done'));
+ drawSeedButtons();drawChecklist();drawTypeOptions();drawLinkOptions();drawReason(false);update();log('<b>'+s.name+'</b> loaded.');coach(s.story+' Use Split Seed first, then scan the parts.');
+}
+function drawSeedButtons(){let html='';seeds.forEach((s,idx)=>{html+='<button class="'+(idx===Lab.index?'active':'')+'" onclick="SeedLab.goToSeed('+idx+')">'+s.icon+' '+s.name+'</button>'});$('seedButtons').innerHTML=html}
+function drawChecklist(){let html='';scanKeys.forEach(k=>{html+='<div class="choice '+(Lab.scans[k]?'correct':'')+'"><b>'+k.toUpperCase()+':</b> '+(Lab.scans[k]||'not scanned')+'</div>'});$('checklist').innerHTML=html}
+function drawTypeOptions(){let opts=['Monocot','Dicot'];let html='';opts.forEach(o=>{html+='<button class="choice" onclick="SeedLab.pickType(&quot;'+o+'&quot;)"><b>'+o+'</b></button>'});$('typeOptions').innerHTML=html}
+function drawLinkOptions(){let opts=['Taproot + Reticulate venation','Fibrous root + Parallel venation'];let html='';opts.forEach(o=>{html+='<button class="choice" onclick="SeedLab.pickLink(&quot;'+o+'&quot;)"><b>'+o+'</b></button>'});$('linkOptions').innerHTML=html}
+function drawReason(open){if(!open){$('questionText').textContent='Scan and classify to unlock reasoning question.';$('reasonOptions').innerHTML='';return}const s=seeds[Lab.index];$('questionText').textContent=s.question;let html='';s.options.forEach(o=>{html+='<button class="choice" onclick="SeedLab.answerReason(&quot;'+o+'&quot;)">'+o+'</button>'});$('reasonOptions').innerHTML=html}
+function splitSeed(){Lab.split=true;$('seedShell').classList.add('split');coach('Seed split view opened. Now scan cotyledon and embryo.');log('<b>Split view:</b> Seed opened for observation.')}
+function scan(k){
+ const s=seeds[Lab.index];if(k!=='coat'&&!Lab.split){coach('First use Split Seed so the inner parts are visible.');return}
+ let msg='';if(k==='coat')msg='Outer seed coat protects the seed.';if(k==='split')msg='Seed split view shows inner parts.';if(k==='cotyledon')msg='Cotyledon count: '+s.cotyledon+'.';if(k==='embryo')msg='Embryo is the baby plant inside the seed.';
+ Lab.scans[k]=msg;const btn=$(k+'Btn');if(btn)btn.classList.add('done');if(k==='split')splitSeed();$('latestScan').textContent=k.toUpperCase()+': '+msg;Lab.score+=12;drawChecklist();update();coach(msg);log('<b>Scan:</b> '+s.name+' '+k+' — '+msg);
+}
+function scannedAll(){return scanKeys.every(k=>Lab.scans[k])}
+function pickType(ans){
+ const s=seeds[Lab.index];document.querySelectorAll('#typeOptions .choice').forEach(b=>{if(b.textContent.trim()===s.type)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==s.type)b.classList.add('wrong')});
+ if(!scannedAll()){coach('Scan all seed parts first.');return}
+ if(ans===s.type){Lab.type=ans;Lab.score+=55;coach('Correct. '+s.type+' identified.');log('<b>Seed type:</b> '+s.name+' — '+s.type);checkUnlock()}else{Lab.score=Math.max(0,Lab.score-12);coach('Not correct. Count the cotyledons again.')}
+ update();
+}
+function pickLink(ans){
+ const s=seeds[Lab.index];document.querySelectorAll('#linkOptions .choice').forEach(b=>{if(b.textContent.trim()===s.link)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==s.link)b.classList.add('wrong')});
+ if(!scannedAll()){coach('Scan all seed parts first.');return}
+ if(ans===s.link){Lab.link=ans;Lab.score+=55;coach('Correct. Link predicted: '+s.link+'.');log('<b>Prediction:</b> '+s.name+' — '+s.link);checkUnlock()}else{Lab.score=Math.max(0,Lab.score-12);coach('Not correct. Monocot usually links with fibrous root and parallel venation; dicot with taproot and reticulate venation.')}
+ update();
+}
+function checkUnlock(){const s=seeds[Lab.index];if(Lab.type===s.type&&Lab.link===s.link){$('concept').textContent=s.concept;drawReason(true);coach('Seed link unlocked. '+s.concept)}}
+function answerReason(ans){
+ const s=seeds[Lab.index];document.querySelectorAll('#reasonOptions .choice').forEach(b=>{if(b.textContent.trim()===s.answer)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==s.answer)b.classList.add('wrong')});
+ if(ans===s.answer){if(!Lab.solved[s.id])Lab.score+=70;Lab.solved[s.id]=true;$('concept').textContent=s.concept;coach('Reasoning correct. '+s.concept);log('<b>Reasoning solved:</b> '+s.name+' — '+s.concept);if(Object.keys(Lab.solved).length===seeds.length){$('certificate').style.display='block';coach('Excellent. You completed Seed Split Lab 3D and unlocked the certificate.');$('certificate').scrollIntoView({behavior:'smooth'})}else{setTimeout(()=>{if(Lab.index<seeds.length-1)loadSeed(Lab.index+1)},850)}}else{Lab.score=Math.max(0,Lab.score-10);coach('Reasoning not correct. Recheck cotyledon count.')}update();
+}
+function update(){const sc=scanKeys.filter(k=>Lab.scans[k]).length;const meter=Math.round(sc/scanKeys.length*100);$('score').textContent=Lab.score;$('scanMeter').textContent=meter+'%';$('scanBar').style.width=meter+'%'}
+function goToSeed(i){loadSeed(i)}
+function hint(){const s=seeds[Lab.index];if(!Lab.split){coach('Hint: press Split Seed first.');alert('Press Split Seed first.');return}if(!scannedAll()){coach('Hint: scan Seed Coat, Split View, Cotyledon and Embryo.');alert('Scan all four seed parts.');return}coach('Hint: '+(s.type==='Dicot'?'Two cotyledons means dicot; usually taproot and reticulate venation.':'One cotyledon means monocot; usually fibrous root and parallel venation.'));alert(s.type==='Dicot'?'Two cotyledons means dicot.':'One cotyledon means monocot.')}
+function toggleVoice(){Lab.voice=!Lab.voice;$('voiceBtn').textContent=Lab.voice?'🔊 Voice ON':'🔇 Voice OFF';if(Lab.voice)coach('Voice guide is on. Dr AI will guide the seed scanner.')}
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&['s','u'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key==='F12')e.preventDefault()});
+window.SeedLab={start,splitSeed,scan,pickType,pickLink,answerReason,hint,toggleVoice,goToSeed};
+start();
+})();
+</script>
+</body>
+</html>

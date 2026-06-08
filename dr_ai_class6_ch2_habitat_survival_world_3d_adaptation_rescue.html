@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Habitat Survival World 3D | Dr AI Academy</title>
+<style>
+:root{
+  --panel:rgba(10,28,54,.96);
+  --cyan:#64f4ff; --gold:#ffe066; --green:#8cffc1; --red:#ff8aa0;
+  --text:#eef8ff; --muted:#b7cce5;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;padding:0;font-family:Arial,Segoe UI,sans-serif;color:var(--text);
+  background:
+    radial-gradient(circle at 15% 10%,rgba(100,244,255,.16),transparent 26%),
+    radial-gradient(circle at 85% 10%,rgba(255,224,102,.14),transparent 26%),
+    linear-gradient(135deg,#061123,#123d82 60%,#071c34);
+  overflow-x:hidden;-webkit-text-size-adjust:100%;user-select:none
+}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+.watermark{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.wm{position:absolute;color:rgba(255,255,255,.055);font-size:clamp(28px,4vw,54px);font-weight:1000;transform:rotate(-24deg);white-space:nowrap}
+.cornerMark{position:fixed;right:12px;bottom:12px;z-index:1000;pointer-events:none;color:rgba(255,255,255,.78);background:rgba(4,13,24,.45);border:1px solid rgba(255,255,255,.2);padding:7px 10px;border-radius:999px;font-weight:900}
+.wrap{max-width:1460px;margin:auto;padding:12px;position:relative;z-index:1}
+.panel{background:var(--panel);border:1px solid rgba(100,244,255,.25);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.hero{background:linear-gradient(180deg,rgba(18,61,130,.94),rgba(7,22,48,.97));position:relative;overflow:hidden}
+.hero:after{content:"🏜️ 🐫 🌊 🐟 🌲 🐯 ❄️";position:absolute;right:18px;bottom:14px;font-size:32px;letter-spacing:8px;opacity:.22}
+.logo{position:absolute;right:14px;top:14px;background:rgba(0,0,0,.28);border:1px solid rgba(100,244,255,.3);border-radius:16px;padding:8px 11px;text-align:right}
+.logo b{display:block}.logo span{color:var(--cyan);font-size:.74rem;font-weight:900}
+.badge{display:inline-block;background:rgba(100,244,255,.12);border:1px solid rgba(100,244,255,.25);border-radius:999px;color:var(--cyan);font-weight:900;padding:8px 12px;font-size:.78rem}
+h1{font-size:clamp(1.8rem,5vw,3.8rem);line-height:1.04;margin:10px 0 8px;max-width:1050px}
+.sub{line-height:1.55;color:var(--muted);max-width:1080px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:0;border-radius:15px;padding:12px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,var(--cyan),#d9fbff);color:#061123;min-height:46px}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#fff3b0);color:#241400}
+.btn.dark{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff}
+.gameGrid{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:12px;align-items:start}
+.scene{
+  position:relative;min-height:780px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(180deg,#a7e8ff 0,#dff8ff 22%,#85c977 23%,#4c8b3f 51%,#704422 52%,#2d190e 100%);
+  border:1px solid rgba(255,255,255,.15);
+}
+.scene.desert{background:linear-gradient(180deg,#ffe0a2 0,#ffefc7 24%,#e0b46b 25%,#b77b3c 62%,#7a4a24 63%,#3a2114 100%)}
+.scene.pond{background:linear-gradient(180deg,#a7e8ff 0,#dff8ff 22%,#7fd8c8 23%,#1682a9 55%,#075173 56%,#102b3f 100%)}
+.scene.forest{background:linear-gradient(180deg,#9fdcff 0,#dff8ff 22%,#69b65a 23%,#276b34 58%,#5b351c 59%,#23140b 100%)}
+.scene.polar{background:linear-gradient(180deg,#caefff 0,#ffffff 25%,#c7ecff 26%,#82b8d9 56%,#edfaff 57%,#a9d1e9 100%)}
+.sceneTitle,.labTag{position:absolute;top:14px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:9px 12px;font-weight:900;z-index:9}
+.sceneTitle{left:14px}.labTag{right:14px}
+.sun{position:absolute;right:10%;top:78px;font-size:58px;z-index:1;animation:sun 4s infinite ease-in-out}
+@keyframes sun{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.cloud{position:absolute;font-size:46px;top:90px;left:12%;opacity:.85;animation:cloud 18s infinite ease-in-out;z-index:1}
+@keyframes cloud{0%,100%{transform:translateX(0)}50%{transform:translateX(80px)}}
+.habitatGround{
+  position:absolute;left:6%;right:6%;bottom:250px;height:270px;border-radius:38px;
+  background:rgba(0,0,0,.16);border:2px solid rgba(255,255,255,.18);box-shadow:0 18px 30px rgba(0,0,0,.25);z-index:2;overflow:hidden
+}
+.scene.desert .habitatGround{background:radial-gradient(ellipse at 50% 85%,#e5b166,#a06430)}
+.scene.pond .habitatGround{background:radial-gradient(ellipse at 50% 55%,#7df1ff,#0d78a5 65%,#084c6d)}
+.scene.forest .habitatGround{background:radial-gradient(ellipse at 50% 90%,#499f45,#1b5f2b 70%,#16451f)}
+.scene.polar .habitatGround{background:radial-gradient(ellipse at 50% 78%,#ffffff,#bfe8ff 64%,#8dbedb)}
+.decor{position:absolute;z-index:3;font-size:54px;filter:drop-shadow(0 12px 16px rgba(0,0,0,.24))}
+#decor1{left:10%;bottom:410px}#decor2{right:11%;bottom:390px}#decor3{left:45%;bottom:455px}
+.animalPod{
+  position:absolute;left:50%;bottom:345px;transform:translateX(-50%);
+  width:170px;height:170px;border-radius:36px;background:rgba(0,0,0,.24);border:2px solid rgba(255,255,255,.20);
+  display:grid;place-items:center;z-index:5;box-shadow:0 18px 28px rgba(0,0,0,.24);
+  animation:animalFloat 2.8s infinite ease-in-out;
+}
+@keyframes animalFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-10px)}}
+#animalIcon{font-size:90px;filter:drop-shadow(0 12px 18px rgba(0,0,0,.25))}
+.scanBeam{
+  position:absolute;left:50%;top:132px;transform:translateX(-50%);
+  width:min(58vw,520px);height:570px;z-index:4;
+  background:linear-gradient(180deg,rgba(100,244,255,.05),rgba(100,244,255,.18),rgba(100,244,255,.02));
+  clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);
+  animation:beam 3s infinite ease-in-out;pointer-events:none
+}
+@keyframes beam{0%,100%{opacity:.28}50%{opacity:.76}}
+.challengeIcon{
+  position:absolute;left:50%;bottom:540px;transform:translateX(-50%);
+  font-size:54px;z-index:7;background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.16);border-radius:50%;width:86px;height:86px;display:grid;place-items:center;animation:pulseIcon 2s infinite ease-in-out
+}
+@keyframes pulseIcon{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.08)}}
+.scanDock{
+  position:absolute;left:50%;bottom:24px;transform:translateX(-50%);
+  width:min(66vw,680px);display:grid;grid-template-columns:repeat(5,1fr);gap:8px;z-index:9;
+  padding:10px;border-radius:18px;background:rgba(0,0,0,.30);border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 12px 24px rgba(0,0,0,.24)
+}
+.scanBtn{border:2px solid rgba(255,255,255,.22);background:rgba(255,224,102,.18);color:white;border-radius:999px;min-height:42px;font-weight:900}
+.scanBtn.done{background:rgba(140,255,193,.18);border-color:rgba(140,255,193,.75)}
+.habitatRack{
+  position:absolute;left:4%;bottom:22px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.scannerNote{
+  position:absolute;right:4%;bottom:22px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.habitatRack h3,.scannerNote h3{margin:4px 0 8px;font-size:1rem}
+.habitatGrid{display:grid;gap:8px}
+.habitatGrid button{width:100%;text-align:left;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;font-weight:800}
+.habitatGrid button.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,224,102,.18)}
+.scannerNote p{margin:6px 0;color:var(--muted);font-size:.93rem;line-height:1.45}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;color:var(--cyan);font-size:22px}
+.bar{height:14px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--green))}
+.infoBox{background:linear-gradient(180deg,rgba(100,244,255,.10),rgba(255,255,255,.04));border:1px solid rgba(100,244,255,.20);border-radius:16px;padding:12px;line-height:1.55;margin-top:10px}
+#coach{background:rgba(255,224,102,.10);border:1px solid rgba(255,224,102,.25);border-radius:14px;padding:10px;font-weight:800;animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(255,224,102,0)}50%{box-shadow:0 0 18px rgba(255,224,102,.18)}}
+.optionGrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+.choice{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:11px;color:#fff;text-align:left;min-height:54px}
+.choice.correct{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.16)}
+.choice.wrong{border-color:rgba(255,138,160,.75);background:rgba(255,138,160,.16)}
+.log{max-height:145px;overflow:auto;background:rgba(0,0,0,.18);border-radius:14px;padding:10px;font-size:.92rem}
+.log p{margin:0 0 8px}
+.cert{display:none;text-align:center;border:2px solid var(--gold)}
+.cert input{width:100%;max-width:360px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;text-align:center}
+.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted)}
+.footer a{color:var(--cyan);font-weight:900;text-decoration:none}
+@media(max-width:1080px){
+  .gameGrid{grid-template-columns:1fr}.logo{position:static;width:max-content;margin:0 0 10px auto}
+  .hero:after{display:none}.controls{display:grid;grid-template-columns:1fr 1fr}.btn{width:100%}
+  .scene{min-height:1040px}
+  .habitatRack,.scannerNote{position:relative;left:auto;right:auto;bottom:auto;width:calc(100% - 20px);margin:10px auto}
+  .scanDock{bottom:292px;width:calc(100% - 20px);grid-template-columns:repeat(5,1fr)}
+  .habitatGround{bottom:420px}.animalPod{bottom:500px}.challengeIcon{bottom:695px}
+  #decor1{bottom:595px}#decor2{bottom:585px}#decor3{bottom:650px}
+}
+@media(max-width:620px){
+  .wrap{padding:6px}.panel{padding:10px;margin:8px 0;border-radius:16px}
+  h1{font-size:1.46rem}h2{font-size:1.08rem;margin:8px 0}h3{font-size:1rem;margin:8px 0}
+  .controls,.stats{grid-template-columns:1fr}.stat{padding:8px}.stat b{font-size:18px}
+  .scene{min-height:1130px}
+  .habitatGround{left:4%;right:4%;height:185px;bottom:465px}
+  .animalPod{width:126px;height:126px;bottom:520px}#animalIcon{font-size:68px}
+  .challengeIcon{bottom:675px;width:68px;height:68px;font-size:42px}
+  .decor{font-size:42px}#decor1{left:6%;bottom:610px}#decor2{right:7%;bottom:608px}#decor3{left:43%;bottom:654px}
+  .scanDock{bottom:318px;width:calc(100% - 16px);grid-template-columns:repeat(2,1fr);gap:7px;padding:8px}
+  .scanBtn{font-size:.78rem;min-height:42px;padding:8px}
+  .habitatRack,.scannerNote{font-size:.9rem}.infoBox{font-size:.9rem}
+}
+@media print{
+  .hero,.gameGrid,.footer,.watermark,.cornerMark{display:none!important}
+  .cert{display:block!important;color:#111;background:#fff}
+  .cert input{color:#111;border:0}
+}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div class="watermark"><div class="wm" style="top:5%;left:-8%">Dr AI Academy</div><div class="wm" style="top:30%;left:35%">Dr AI Academy</div><div class="wm" style="top:55%;left:-5%">Dr AI Academy</div><div class="wm" style="top:78%;left:35%">Dr AI Academy</div></div>
+<div class="cornerMark">Dr AI Academy</div>
+
+<div class="wrap">
+<section class="panel hero">
+  <div class="logo"><b>Dr AI Academy</b><span>3D Habitat Adaptation Lab</span></div>
+  <div class="badge">CLASS 6 • CHAPTER 2 • HABITAT + ADAPTATION</div>
+  <h1>Habitat Survival World 3D:<br>The Adaptation Rescue Mission</h1>
+  <p class="sub">A responsive 3D-style habitat simulation where students explore desert, pond, forest and polar worlds, scan animal adaptations, solve survival challenges, and connect body features with habitat conditions.</p>
+  <div class="controls">
+    <button class="btn gold" onclick="HabitatLab.start()">🎮 Start Habitat Lab</button>
+    <button class="btn dark" onclick="HabitatLab.survivalDemo()">⚡ Survival Demo</button>
+    <button class="btn dark" onclick="HabitatLab.hint()">💡 Dr AI Hint</button>
+    <button class="btn dark" onclick="HabitatLab.toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+  </div>
+</section>
+
+<section class="gameGrid">
+<main class="panel">
+<h2 id="missionTitle">Habitat Mission 1</h2>
+<div class="scene desert" id="scene">
+  <div class="sceneTitle">3D Habitat Survival Scanner</div><div class="labTag" id="labTag">Habitat: Desert</div>
+  <div class="sun" id="sun">☀️</div><div class="cloud">☁️</div>
+  <div class="habitatGround"></div><div class="scanBeam"></div>
+  <div class="decor" id="decor1">🌵</div><div class="decor" id="decor2">🏜️</div><div class="decor" id="decor3">🌡️</div>
+  <div class="challengeIcon" id="challengeIcon">🔥</div>
+  <div class="animalPod"><span id="animalIcon">🐫</span></div>
+
+  <div class="scanDock">
+    <button class="scanBtn" id="bodyBtn" onclick="HabitatLab.scan('body')">Body</button>
+    <button class="scanBtn" id="foodBtn" onclick="HabitatLab.scan('food')">Food</button>
+    <button class="scanBtn" id="waterBtn" onclick="HabitatLab.scan('water')">Water</button>
+    <button class="scanBtn" id="protectionBtn" onclick="HabitatLab.scan('protection')">Protection</button>
+    <button class="scanBtn" id="challengeBtn" onclick="HabitatLab.scan('challenge')">Challenge</button>
+  </div>
+
+  <div class="habitatRack"><h3>🌍 Habitat Rack</h3><div class="habitatGrid" id="habitatButtons"></div></div>
+  <div class="scannerNote"><h3>📓 Dr AI Habitat Notes</h3><p id="storyText">Select a habitat mission and scan adaptations.</p><p><b>Latest scan:</b> <span id="latestScan">Nothing scanned yet.</span></p><p><b>Learning habit:</b> ask how body features help survival.</p></div>
+</div>
+</main>
+
+<aside class="panel">
+<div class="stats"><div class="stat"><b id="score">0</b>Score</div><div class="stat"><b id="habitatNo">1/5</b>Mission</div><div class="stat"><b id="scanMeter">0%</b>Scan</div></div><div class="bar"><span id="scanBar"></span></div>
+<div class="infoBox"><h3>🤖 Dr AI Live Guide</h3><p id="coach">Scan adaptations, match habitat, then solve the survival challenge.</p></div>
+<div class="infoBox"><b>Step 1: Adaptation Scan Checklist</b><div id="checklist"></div></div>
+<div class="infoBox"><b>Step 2: Choose Correct Habitat</b><div class="optionGrid" id="habitatOptions"></div></div>
+<div class="infoBox"><b>Step 3: Choose Main Adaptation</b><div class="optionGrid" id="adaptOptions"></div></div>
+<div class="infoBox"><b>Step 4: Reasoning Challenge</b><p id="questionText">Scan and classify to unlock reasoning question.</p><div class="optionGrid" id="reasonOptions"></div></div>
+<div class="infoBox"><b>Science Result</b><p id="concept">A habitat is the natural home of a living organism. Adaptations help living beings survive there.</p></div>
+<div class="infoBox"><b>Mission Log</b><div class="log" id="log"></div></div>
+</aside>
+</section>
+
+<section class="panel cert" id="certificate">
+  <div style="font-size:54px">🌍🛡️🏅</div><h2>Certificate of Habitat Survival Mastery</h2>
+  <p>This certifies that</p><input placeholder="Enter Student Name">
+  <p>has completed <b>Habitat Survival World 3D: The Adaptation Rescue Mission</b></p>
+  <p>Skills: habitat • adaptation • desert survival • aquatic survival • forest camouflage • polar protection • body feature reasoning</p>
+  <p><b>Developed by Dr AI Academy</b></p><button class="btn gold" onclick="window.print()">Print / Save Certificate</button>
+</section>
+<footer class="panel footer"><div>Developed by <b>Dr AI Academy</b> • Class 6 Science guided simulation</div><div><a href="https://courses.draiacademy.com" target="_blank">AI Courses @ Dr AI Academy</a></div></footer>
+</div>
+
+<script>
+(function(){
+const Lab={voice:true,score:0,index:0,scans:{},solved:{},habitat:null,adapt:null};
+const missions=[
+ {id:'camel',title:'Desert Camel Survival',habitat:'Desert',className:'desert',animal:'Camel',icon:'🐫',decor:['🌵','🏜️','🌡️'],challengeIcon:'🔥',story:'Camel lives in desert where water is scarce and heat is high.',mainAdapt:'Hump and water-saving body',concept:'Camels are adapted to desert life. They can survive with little water and move on sand using broad padded feet.',question:'Which feature helps camel survive in desert?',answer:'Hump and water-saving body',options:['Hump and water-saving body','Gills for breathing in water','White fur for snow'],features:{body:'Broad padded feet help walking on sand.',food:'Camel can eat tough desert plants.',water:'Body saves water for desert conditions.',protection:'Long eyelashes protect eyes from sand.',challenge:'Main challenge is heat and water scarcity.'}},
+ {id:'fish',title:'Pond Fish Survival',habitat:'Aquatic / Pond',className:'pond',animal:'Fish',icon:'🐟',decor:['🌊','🪷','💧'],challengeIcon:'🌊',story:'Fish lives in water and needs body features for swimming and breathing.',mainAdapt:'Gills and fins',concept:'Fish is adapted to aquatic habitat. Gills help breathing in water and fins help swimming.',question:'Which feature helps fish breathe in water?',answer:'Gills',options:['Gills','Hump','Hooves'],features:{body:'Streamlined body reduces resistance in water.',food:'Fish gets food from aquatic habitat.',water:'Water is the surrounding habitat.',protection:'Body shape and movement help escape danger.',challenge:'Main challenge is moving and breathing underwater.'}},
+ {id:'tiger',title:'Forest Tiger Stealth',habitat:'Forest',className:'forest',animal:'Tiger',icon:'🐯',decor:['🌲','🌿','🪵'],challengeIcon:'👀',story:'Tiger lives in forest and uses body features for hunting and hiding.',mainAdapt:'Stripes for camouflage',concept:'Tiger stripes help camouflage in forest grasses and shadows. Camouflage is an adaptation for survival.',question:'Why are tiger stripes useful?',answer:'They help camouflage in forest',options:['They help camouflage in forest','They help breathe underwater','They store water'],features:{body:'Strong body helps movement and hunting.',food:'Tiger is a carnivore and hunts prey.',water:'Forest provides water sources like streams.',protection:'Stripes help camouflage in shadows and grass.',challenge:'Main challenge is hunting and staying hidden.'}},
+ {id:'polar',title:'Polar Bear Cold Shield',habitat:'Polar / Snow',className:'polar',animal:'Polar Bear',icon:'🐻‍❄️',decor:['❄️','🧊','🌨️'],challengeIcon:'🥶',story:'Polar bear lives in a very cold snowy region and needs protection from cold.',mainAdapt:'Thick fur and fat layer',concept:'Polar bear has thick fur and fat layer for insulation. These adaptations help survival in cold habitats.',question:'Which adaptation protects polar bear from cold?',answer:'Thick fur and fat layer',options:['Thick fur and fat layer','Long eyelashes for sand','Thin fins only'],features:{body:'Large body with thick fur helps reduce heat loss.',food:'It hunts in polar habitat.',water:'Snow and ice dominate the habitat.',protection:'Fat layer and fur protect from cold.',challenge:'Main challenge is extreme cold.'}},
+ {id:'frog',title:'Frog Dual Habitat',habitat:'Land and Water',className:'pond',animal:'Frog',icon:'🐸',decor:['💧','🌿','🪨'],challengeIcon:'↔️',story:'Frog can live both on land and in water. It uses different features for both places.',mainAdapt:'Moist skin and strong hind legs',concept:'Frog is adapted to both land and water. Strong hind legs help jumping and swimming, and moist skin supports survival.',question:'Why is frog linked with both land and water?',answer:'It can live in both habitats',options:['It can live in both habitats','It only lives on ice','It only flies'],features:{body:'Strong hind legs help jumping and swimming.',food:'Frog eats small insects.',water:'It needs moist surroundings and water bodies.',protection:'Camouflage and quick jumps help escape danger.',challenge:'Main challenge is living between land and water.'}}
+];
+const scanKeys=['body','food','water','protection','challenge'];
+function $(id){return document.getElementById(id)}
+function say(t){if(!Lab.voice)return;try{if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=.94;u.pitch=1.04;speechSynthesis.speak(u)}}catch(e){}}
+function coach(t){$('coach').textContent=t;say(t)}
+function log(t){$('log').innerHTML='<p>'+t+'</p>'+$('log').innerHTML}
+function start(){Lab.score=0;Lab.index=0;Lab.solved={};loadMission(0);coach('Habitat lab started. Scan adaptations and solve survival challenges.')}
+function loadMission(i){
+ Lab.index=i;Lab.scans={};Lab.habitat=null;Lab.adapt=null;
+ const m=missions[i];$('missionTitle').textContent='Habitat Mission '+(i+1)+': '+m.title;$('labTag').textContent='Habitat: '+m.habitat;$('storyText').textContent=m.story;$('latestScan').textContent='Nothing scanned yet.';$('habitatNo').textContent=(i+1)+'/'+missions.length;$('animalIcon').textContent=m.icon;$('challengeIcon').textContent=m.challengeIcon;$('concept').textContent='A habitat is the natural home of a living organism. Adaptations help living beings survive there.';
+ const scene=$('scene');scene.className='scene '+m.className;$('decor1').textContent=m.decor[0];$('decor2').textContent=m.decor[1];$('decor3').textContent=m.decor[2];
+ document.querySelectorAll('.scanBtn').forEach(b=>b.classList.remove('done'));drawHabitatButtons();drawChecklist();drawHabitatOptions();drawAdaptOptions();drawReason(false);update();log('<b>'+m.title+'</b> loaded.');coach(m.story+' Scan body, food, water, protection and challenge.');
+}
+function drawHabitatButtons(){let html='';missions.forEach((m,idx)=>{html+='<button class="'+(idx===Lab.index?'active':'')+'" onclick="HabitatLab.goToMission('+idx+')">'+m.icon+' '+m.animal+'</button>'});$('habitatButtons').innerHTML=html}
+function drawChecklist(){let html='';scanKeys.forEach(k=>{html+='<div class="choice '+(Lab.scans[k]?'correct':'')+'"><b>'+k.toUpperCase()+':</b> '+(Lab.scans[k]||'not scanned')+'</div>'});$('checklist').innerHTML=html}
+function drawHabitatOptions(){let opts=['Desert','Aquatic / Pond','Forest','Polar / Snow','Land and Water'];let html='';opts.forEach(o=>{html+='<button class="choice" onclick="HabitatLab.pickHabitat(&quot;'+o+'&quot;)"><b>'+o+'</b></button>'});$('habitatOptions').innerHTML=html}
+function drawAdaptOptions(){let opts=['Hump and water-saving body','Gills and fins','Stripes for camouflage','Thick fur and fat layer','Moist skin and strong hind legs'];let html='';opts.forEach(o=>{html+='<button class="choice" onclick="HabitatLab.pickAdapt(&quot;'+o+'&quot;)"><b>'+o+'</b></button>'});$('adaptOptions').innerHTML=html}
+function drawReason(open){if(!open){$('questionText').textContent='Scan and classify to unlock reasoning question.';$('reasonOptions').innerHTML='';return}const m=missions[Lab.index];$('questionText').textContent=m.question;let html='';m.options.forEach(o=>{html+='<button class="choice" onclick="HabitatLab.answerReason(&quot;'+o+'&quot;)">'+o+'</button>'});$('reasonOptions').innerHTML=html}
+function scannedAll(){return scanKeys.every(k=>Lab.scans[k])}
+function scan(k){
+ const m=missions[Lab.index];const msg=m.features[k];Lab.scans[k]=msg;const btn=$(k+'Btn');if(btn)btn.classList.add('done');$('latestScan').textContent=k.toUpperCase()+': '+msg;Lab.score+=12;drawChecklist();update();coach(msg);log('<b>Scan:</b> '+m.animal+' '+k+' — '+msg);
+}
+function survivalDemo(){
+ const m=missions[Lab.index];
+ $('challengeIcon').style.animation='none';
+ void $('challengeIcon').offsetWidth;
+ $('challengeIcon').style.animation='pulseIcon 1s infinite ease-in-out';
+ coach('Survival demo: '+m.mainAdapt+' helps '+m.animal+' survive in '+m.habitat+'.');
+ log('<b>Survival demo:</b> '+m.animal+' uses '+m.mainAdapt+' in '+m.habitat+'.');
+}
+function pickHabitat(ans){
+ const m=missions[Lab.index];document.querySelectorAll('#habitatOptions .choice').forEach(b=>{if(b.textContent.trim()===m.habitat)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==m.habitat)b.classList.add('wrong')});
+ if(!scannedAll()){coach('Scan all adaptation features first.');return}
+ if(ans===m.habitat){Lab.habitat=ans;Lab.score+=55;coach('Correct habitat: '+m.habitat+'.');log('<b>Habitat:</b> '+m.animal+' — '+m.habitat);checkUnlock()}else{Lab.score=Math.max(0,Lab.score-12);coach('Not correct. Match animal features with its natural home.')}
+ update();
+}
+function pickAdapt(ans){
+ const m=missions[Lab.index];document.querySelectorAll('#adaptOptions .choice').forEach(b=>{if(b.textContent.trim()===m.mainAdapt)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==m.mainAdapt)b.classList.add('wrong')});
+ if(!scannedAll()){coach('Scan all adaptation features first.');return}
+ if(ans===m.mainAdapt){Lab.adapt=ans;Lab.score+=55;coach('Correct adaptation: '+m.mainAdapt+'.');log('<b>Adaptation:</b> '+m.animal+' — '+m.mainAdapt);checkUnlock()}else{Lab.score=Math.max(0,Lab.score-12);coach('Not correct. Think about the main survival challenge.')}
+ update();
+}
+function checkUnlock(){const m=missions[Lab.index];if(Lab.habitat===m.habitat&&Lab.adapt===m.mainAdapt){$('concept').textContent=m.concept;drawReason(true);coach('Habitat-adaptation link unlocked. '+m.concept)}}
+function answerReason(ans){
+ const m=missions[Lab.index];document.querySelectorAll('#reasonOptions .choice').forEach(b=>{if(b.textContent.trim()===m.answer)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==m.answer)b.classList.add('wrong')});
+ if(ans===m.answer){if(!Lab.solved[m.id])Lab.score+=70;Lab.solved[m.id]=true;$('concept').textContent=m.concept;coach('Reasoning correct. '+m.concept);log('<b>Reasoning solved:</b> '+m.animal+' — '+m.concept);if(Object.keys(Lab.solved).length===missions.length){$('certificate').style.display='block';coach('Excellent. You completed Habitat Survival World 3D and unlocked the certificate.');$('certificate').scrollIntoView({behavior:'smooth'})}else{setTimeout(()=>{if(Lab.index<missions.length-1)loadMission(Lab.index+1)},850)}}else{Lab.score=Math.max(0,Lab.score-10);coach('Reasoning not correct. Recheck the habitat challenge.')}update();
+}
+function update(){const sc=scanKeys.filter(k=>Lab.scans[k]).length;const meter=Math.round(sc/scanKeys.length*100);$('score').textContent=Lab.score;$('scanMeter').textContent=meter+'%';$('scanBar').style.width=meter+'%'}
+function goToMission(i){loadMission(i)}
+function hint(){const m=missions[Lab.index];if(!scannedAll()){coach('Hint: scan Body, Food, Water, Protection and Challenge.');alert('Tap all five scan buttons.');return}coach('Hint: '+m.animal+' lives in '+m.habitat+' and its main adaptation is '+m.mainAdapt+'.');alert(m.animal+' → '+m.habitat+' → '+m.mainAdapt)}
+function toggleVoice(){Lab.voice=!Lab.voice;$('voiceBtn').textContent=Lab.voice?'🔊 Voice ON':'🔇 Voice OFF';if(Lab.voice)coach('Voice guide is on. Dr AI will guide the habitat lab.')}
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&['s','u'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key==='F12')e.preventDefault()});
+window.HabitatLab={start,scan,pickHabitat,pickAdapt,answerReason,survivalDemo,hint,toggleVoice,goToMission};
+start();
+})();
+</script>
+</body>
+</html>

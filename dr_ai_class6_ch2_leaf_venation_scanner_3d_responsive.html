@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Leaf Venation Scanner 3D | Dr AI Academy</title>
+<style>
+:root{
+  --panel:rgba(10,28,54,.96);
+  --cyan:#64f4ff; --gold:#ffe066; --green:#8cffc1; --red:#ff8aa0;
+  --text:#eef8ff; --muted:#b7cce5;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;padding:0;font-family:Arial,Segoe UI,sans-serif;color:var(--text);
+  background:
+    radial-gradient(circle at 15% 10%,rgba(100,244,255,.16),transparent 26%),
+    radial-gradient(circle at 85% 10%,rgba(255,224,102,.14),transparent 26%),
+    linear-gradient(135deg,#061123,#123d82 60%,#071c34);
+  overflow-x:hidden;-webkit-text-size-adjust:100%;user-select:none
+}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+.watermark{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.wm{position:absolute;color:rgba(255,255,255,.055);font-size:clamp(28px,4vw,54px);font-weight:1000;transform:rotate(-24deg);white-space:nowrap}
+.cornerMark{position:fixed;right:12px;bottom:12px;z-index:1000;pointer-events:none;color:rgba(255,255,255,.78);background:rgba(4,13,24,.45);border:1px solid rgba(255,255,255,.2);padding:7px 10px;border-radius:999px;font-weight:900}
+.wrap{max-width:1460px;margin:auto;padding:12px;position:relative;z-index:1}
+.panel{background:var(--panel);border:1px solid rgba(100,244,255,.25);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.hero{background:linear-gradient(180deg,rgba(18,61,130,.94),rgba(7,22,48,.97));position:relative;overflow:hidden}
+.hero:after{content:"🍃 🔬 🌱 🫘 📡 🧠";position:absolute;right:18px;bottom:14px;font-size:32px;letter-spacing:8px;opacity:.22}
+.logo{position:absolute;right:14px;top:14px;background:rgba(0,0,0,.28);border:1px solid rgba(100,244,255,.3);border-radius:16px;padding:8px 11px;text-align:right}
+.logo b{display:block}.logo span{color:var(--cyan);font-size:.74rem;font-weight:900}
+.badge{display:inline-block;background:rgba(100,244,255,.12);border:1px solid rgba(100,244,255,.25);border-radius:999px;color:var(--cyan);font-weight:900;padding:8px 12px;font-size:.78rem}
+h1{font-size:clamp(1.8rem,5vw,3.8rem);line-height:1.04;margin:10px 0 8px;max-width:1050px}
+.sub{line-height:1.55;color:var(--muted);max-width:1080px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{border:0;border-radius:15px;padding:12px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,var(--cyan),#d9fbff);color:#061123;min-height:46px}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#fff3b0);color:#241400}
+.btn.dark{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff}
+.gameGrid{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:12px;align-items:start}
+
+.scene{
+  position:relative;min-height:720px;border-radius:18px;overflow:hidden;
+  background:linear-gradient(180deg,#a8e9ff 0,#dbf9ff 25%,#8edb7b 26%,#4c8b3f 55%,#704422 56%,#3b2113 100%);
+  border:1px solid rgba(255,255,255,.15);
+}
+.sceneTitle,.labTag{
+  position:absolute;top:14px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);
+  border-radius:14px;padding:9px 12px;font-weight:900;z-index:8
+}
+.sceneTitle{left:14px}.labTag{right:14px}
+.scanGrid{
+  position:absolute;left:5%;right:5%;top:72px;height:180px;border-radius:26px;
+  background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.06));
+  border:2px solid rgba(255,255,255,.22);z-index:1
+}
+.scanBeam{
+  position:absolute;left:50%;top:105px;transform:translateX(-50%);
+  width:min(56vw,520px);height:510px;z-index:2;
+  background:linear-gradient(180deg,rgba(100,244,255,.05),rgba(100,244,255,.23),rgba(100,244,255,.02));
+  clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);
+  animation:beam 3s infinite ease-in-out;pointer-events:none
+}
+@keyframes beam{0%,100%{opacity:.35}50%{opacity:.88}}
+.ground{
+  position:absolute;left:0;right:0;bottom:0;height:330px;
+  background:repeating-linear-gradient(90deg,#5d351c 0,#5d351c 45px,#704522 46px,#704522 90px);
+  z-index:1
+}
+.leafStage{
+  position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);
+  width:min(68vw,620px);height:455px;z-index:4;
+}
+.leaf{
+  position:absolute;left:50%;top:52%;transform:translate(-50%,-50%) rotate(var(--leafRot,0deg));
+  width:min(58vw,420px);height:min(42vw,300px);
+  max-width:420px;max-height:300px;
+  border-radius:50% 8% 50% 8%;
+  background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.23),transparent 16%),linear-gradient(135deg,#7eff8f,#2e9d42 63%,#156c27);
+  border:3px solid rgba(255,255,255,.28);
+  box-shadow:0 22px 34px rgba(0,0,0,.28),inset 0 0 34px rgba(255,255,255,.1);
+  overflow:hidden;
+  animation:leafFloat 3s infinite ease-in-out;
+}
+@keyframes leafFloat{0%,100%{margin-top:0}50%{margin-top:-8px}}
+.midrib{position:absolute;left:8%;right:8%;top:50%;height:8px;border-radius:999px;background:rgba(230,255,210,.78);transform:rotate(-32deg);transform-origin:center;box-shadow:0 0 12px rgba(255,255,255,.35)}
+.vein{position:absolute;height:4px;border-radius:999px;background:rgba(214,255,200,.70);box-shadow:0 0 8px rgba(255,255,255,.18)}
+.parallel .v1{left:24%;top:18%;height:70%;width:4px;transform:rotate(17deg)}
+.parallel .v2{left:38%;top:12%;height:78%;width:4px;transform:rotate(15deg)}
+.parallel .v3{left:52%;top:10%;height:80%;width:4px;transform:rotate(13deg)}
+.parallel .v4{left:66%;top:15%;height:72%;width:4px;transform:rotate(10deg)}
+.parallel .v5{left:80%;top:25%;height:54%;width:4px;transform:rotate(8deg)}
+.reticulate .v1{left:34%;top:28%;width:110px;transform:rotate(-54deg)}
+.reticulate .v2{left:45%;top:33%;width:132px;transform:rotate(-30deg)}
+.reticulate .v3{left:42%;top:53%;width:126px;transform:rotate(28deg)}
+.reticulate .v4{left:31%;top:63%;width:116px;transform:rotate(48deg)}
+.reticulate .v5{left:54%;top:44%;width:88px;transform:rotate(62deg)}
+.reticulate .v6{left:28%;top:44%;width:94px;transform:rotate(-14deg)}
+.rootPanel{
+  position:absolute;left:50%;bottom:38px;transform:translateX(-50%);width:min(58vw,430px);height:120px;
+  border-radius:20px;background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.14);z-index:5;display:none;overflow:hidden
+}
+.rootTitle{position:absolute;left:10px;top:8px;font-weight:900;color:var(--gold)}
+.rootLine{position:absolute;left:50%;top:34px;width:9px;height:80px;border-radius:999px;background:#e9c18a;transform-origin:top}
+.fib{position:absolute;top:34px;width:6px;height:82px;border-radius:999px;background:#e9c18a;transform-origin:top}
+.tap .r1{transform:rotate(0deg)}.tap .r2{height:58px;transform:rotate(-28deg)}.tap .r3{height:58px;transform:rotate(28deg)}
+.scanBtn{
+  position:absolute;z-index:7;border:2px solid rgba(255,255,255,.22);background:rgba(255,224,102,.18);
+  color:white;border-radius:999px;min-width:84px;min-height:44px;font-weight:900;box-shadow:0 0 18px rgba(255,224,102,.16)
+}
+.scanBtn.done{background:rgba(140,255,193,.18);border-color:rgba(140,255,193,.75)}
+#midribBtn{left:50%;top:210px;transform:translateX(-50%)}
+#veinBtn{right:17%;top:300px}
+#edgeBtn{left:16%;top:310px}
+#rootBtn{left:50%;bottom:172px;transform:translateX(-50%)}
+.leafRack{
+  position:absolute;left:4%;bottom:26px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.scannerNote{
+  position:absolute;right:4%;bottom:26px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7
+}
+.leafRack h3,.scannerNote h3{margin:4px 0 8px;font-size:1rem}
+.leafGrid{display:grid;gap:8px}
+.leafGrid button{
+  width:100%;text-align:left;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.08);color:#fff;font-weight:800
+}
+.leafGrid button.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,224,102,.18)}
+.scannerNote p{margin:6px 0;color:var(--muted);font-size:.93rem;line-height:1.45}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;color:var(--cyan);font-size:22px}
+.bar{height:14px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--green))}
+.infoBox{background:linear-gradient(180deg,rgba(100,244,255,.10),rgba(255,255,255,.04));border:1px solid rgba(100,244,255,.20);border-radius:16px;padding:12px;line-height:1.55;margin-top:10px}
+#coach{background:rgba(255,224,102,.10);border:1px solid rgba(255,224,102,.25);border-radius:14px;padding:10px;font-weight:800;animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(255,224,102,0)}50%{box-shadow:0 0 18px rgba(255,224,102,.18)}}
+.optionGrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+.choice{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;
+  padding:11px;color:#fff;text-align:left;min-height:54px
+}
+.choice.correct{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.16)}
+.choice.wrong{border-color:rgba(255,138,160,.75);background:rgba(255,138,160,.16)}
+.log{max-height:145px;overflow:auto;background:rgba(0,0,0,.18);border-radius:14px;padding:10px;font-size:.92rem}
+.log p{margin:0 0 8px}
+.cert{display:none;text-align:center;border:2px solid var(--gold)}
+.cert input{width:100%;max-width:360px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;text-align:center}
+.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted)}
+.footer a{color:var(--cyan);font-weight:900;text-decoration:none}
+@media(max-width:1080px){
+  .gameGrid{grid-template-columns:1fr}
+  .logo{position:static;width:max-content;margin:0 0 10px auto}
+  .hero:after{display:none}
+  .controls{display:grid;grid-template-columns:1fr 1fr}.btn{width:100%}
+  .scene{min-height:980px}
+  .leafStage{top:35%}
+  .leafRack,.scannerNote{position:relative;left:auto;right:auto;bottom:auto;width:calc(100% - 20px);margin:10px auto}
+  .ground{height:390px}
+  .rootPanel{bottom:315px}
+  #rootBtn{bottom:452px}
+}
+@media(max-width:620px){
+  .wrap{padding:6px}.panel{padding:10px;margin:8px 0;border-radius:16px}
+  h1{font-size:1.46rem}h2{font-size:1.08rem;margin:8px 0}h3{font-size:1rem;margin:8px 0}
+  .controls,.stats{grid-template-columns:1fr}.stat{padding:8px}.stat b{font-size:18px}
+  .scene{min-height:1040px}
+  .leafStage{width:92vw;height:390px}
+  .leaf{width:82vw;height:58vw;max-height:260px}
+  .scanBtn{font-size:.78rem;min-width:68px;min-height:38px}
+  #midribBtn{top:198px}#veinBtn{right:8%;top:285px}#edgeBtn{left:8%;top:292px}
+  .rootPanel{width:86vw;bottom:352px}
+  #rootBtn{bottom:490px}
+  .leafRack,.scannerNote{font-size:.9rem}.infoBox{font-size:.9rem}
+}
+@media print{
+  .hero,.gameGrid,.footer,.watermark,.cornerMark{display:none!important}
+  .cert{display:block!important;color:#111;background:#fff}
+  .cert input{color:#111;border:0}
+}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div class="watermark"><div class="wm" style="top:5%;left:-8%">Dr AI Academy</div><div class="wm" style="top:30%;left:35%">Dr AI Academy</div><div class="wm" style="top:55%;left:-5%">Dr AI Academy</div><div class="wm" style="top:78%;left:35%">Dr AI Academy</div></div>
+<div class="cornerMark">Dr AI Academy</div>
+
+<div class="wrap">
+<section class="panel hero">
+  <div class="logo"><b>Dr AI Academy</b><span>Responsive 3D Leaf Scanner</span></div>
+  <div class="badge">CLASS 6 • CHAPTER 2 • LEAF VENATION + ROOT CONNECTION</div>
+  <h1>Leaf Venation Scanner 3D:<br>The Pattern Prediction Mission</h1>
+  <p class="sub">A responsive 3D-style lab where students scan leaves, identify reticulate or parallel venation, predict root type, and connect plant features like a young botanist. Designed for phone, tablet, and desktop without overlap.</p>
+  <div class="controls">
+    <button class="btn gold" onclick="LeafLab.start()">🎮 Start Leaf Lab</button>
+    <button class="btn dark" onclick="LeafLab.rootScan()">🫘 Root Scanner</button>
+    <button class="btn dark" onclick="LeafLab.hint()">💡 Dr AI Hint</button>
+    <button class="btn dark" onclick="LeafLab.toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+  </div>
+</section>
+
+<section class="gameGrid">
+<main class="panel">
+<h2 id="missionTitle">Leaf Scan 1</h2>
+<div class="scene" id="scene">
+  <div class="sceneTitle">3D Leaf Pattern Scanner</div><div class="labTag" id="labTag">Leaf ID: Mango</div>
+  <div class="scanGrid"></div><div class="scanBeam"></div><div class="ground"></div>
+
+  <div class="leafStage">
+    <div class="leaf reticulate" id="leaf">
+      <div class="midrib"></div>
+      <div class="vein v1"></div><div class="vein v2"></div><div class="vein v3"></div><div class="vein v4"></div><div class="vein v5"></div><div class="vein v6"></div>
+    </div>
+  </div>
+
+  <div class="rootPanel tap" id="rootPanel">
+    <div class="rootTitle" id="rootTitle">Root Preview</div>
+    <div class="rootLine r1"></div><div class="rootLine r2"></div><div class="rootLine r3"></div>
+    <div class="fib" id="fib1" style="left:38%;transform:rotate(-26deg)"></div>
+    <div class="fib" id="fib2" style="left:45%;transform:rotate(-12deg)"></div>
+    <div class="fib" id="fib3" style="left:52%;transform:rotate(8deg)"></div>
+    <div class="fib" id="fib4" style="left:59%;transform:rotate(22deg)"></div>
+  </div>
+
+  <button class="scanBtn" id="midribBtn" onclick="LeafLab.scan('midrib')">Midrib</button>
+  <button class="scanBtn" id="veinBtn" onclick="LeafLab.scan('veins')">Veins</button>
+  <button class="scanBtn" id="edgeBtn" onclick="LeafLab.scan('edge')">Leaf Edge</button>
+  <button class="scanBtn" id="rootBtn" onclick="LeafLab.scan('root')">Root Link</button>
+
+  <div class="leafRack"><h3>🍃 Leaf Rack</h3><div class="leafGrid" id="leafButtons"></div></div>
+  <div class="scannerNote"><h3>📓 Scanner Notes</h3><p id="storyText">Select a leaf and scan its pattern.</p><p><b>Latest scan:</b> <span id="latestScan">Nothing scanned yet.</span></p><p><b>Learning habit:</b> observe pattern first, then predict root type.</p></div>
+</div>
+</main>
+
+<aside class="panel">
+<div class="stats"><div class="stat"><b id="score">0</b>Score</div><div class="stat"><b id="leafNo">1/5</b>Leaf</div><div class="stat"><b id="scanMeter">0%</b>Scan</div></div><div class="bar"><span id="scanBar"></span></div>
+<div class="infoBox"><h3>🤖 Dr AI Live Guide</h3><p id="coach">Scan the leaf pattern, classify venation, then predict root type.</p></div>
+<div class="infoBox"><b>Step 1: Leaf Scan Checklist</b><div id="checklist"></div></div>
+<div class="infoBox"><b>Step 2: Identify Venation</b><div class="optionGrid" id="venationOptions"></div></div>
+<div class="infoBox"><b>Step 3: Predict Root Type</b><div class="optionGrid" id="rootOptions"></div></div>
+<div class="infoBox"><b>Step 4: Reasoning Challenge</b><p id="questionText">Scan and classify to unlock the reasoning question.</p><div class="optionGrid" id="reasonOptions"></div></div>
+<div class="infoBox"><b>Science Result</b><p id="concept">Leaf venation can help us predict root type in many plants.</p></div>
+<div class="infoBox"><b>Mission Log</b><div class="log" id="log"></div></div>
+</aside>
+</section>
+
+<section class="panel cert" id="certificate">
+  <div style="font-size:54px">🍃🔬🏅</div><h2>Certificate of Leaf Venation Scanner Mastery</h2>
+  <p>This certifies that</p><input placeholder="Enter Student Name">
+  <p>has completed <b>Leaf Venation Scanner 3D: The Pattern Prediction Mission</b></p>
+  <p>Skills: reticulate venation • parallel venation • taproot • fibrous root • observation • pattern prediction</p>
+  <p><b>Developed by Dr AI Academy</b></p><button class="btn gold" onclick="window.print()">Print / Save Certificate</button>
+</section>
+<footer class="panel footer"><div>Developed by <b>Dr AI Academy</b> • Class 6 Science guided simulation</div><div><a href="https://courses.draiacademy.com" target="_blank">AI Courses @ Dr AI Academy</a></div></footer>
+</div>
+
+<script>
+(function(){
+const Lab={voice:true,score:0,index:0,scans:{},solved:{},rootOpen:false,venation:null,root:null};
+const leaves=[
+ {id:'mango',name:'Mango Leaf',icon:'🥭',venation:'Reticulate',root:'Taproot',story:'Mango leaf has a network-like vein pattern. Scan it carefully.',pattern:'reticulate',concept:'Reticulate venation forms a network of veins. Plants with reticulate venation usually have taproots.',question:'Why can mango be linked with taproot?',answer:'Because reticulate venation usually links with taproot',options:['Because reticulate venation usually links with taproot','Because all leaves have fibrous roots','Because mango leaf has no midrib']},
+ {id:'hibiscus',name:'Hibiscus Leaf',icon:'🌺',venation:'Reticulate',root:'Taproot',story:'Hibiscus leaf shows branching veins forming a net-like pattern.',pattern:'reticulate',concept:'Hibiscus has reticulate venation. In many plants, reticulate venation is associated with a taproot system.',question:'What does net-like leaf venation suggest?',answer:'Reticulate venation',options:['Reticulate venation','Parallel venation','No venation']},
+ {id:'banana',name:'Banana Leaf',icon:'🍌',venation:'Parallel',root:'Fibrous root',story:'Banana leaf has veins running almost parallel from base to tip.',pattern:'parallel',concept:'Parallel venation has veins running side by side. Plants with parallel venation usually have fibrous roots.',question:'What root type is usually linked with parallel venation?',answer:'Fibrous root',options:['Fibrous root','Taproot','No root']},
+ {id:'grass',name:'Grass Leaf',icon:'🌾',venation:'Parallel',root:'Fibrous root',story:'Grass leaves are narrow with parallel veins. This is common in many monocot plants.',pattern:'parallel',concept:'Grass has parallel venation and usually fibrous roots.',question:'Why is grass linked with fibrous roots?',answer:'Because parallel venation usually links with fibrous roots',options:['Because parallel venation usually links with fibrous roots','Because grass is a tree','Because it has woody trunk']},
+ {id:'peepal',name:'Peepal Leaf',icon:'🍃',venation:'Reticulate',root:'Taproot',story:'Peepal leaf has visible branching veins making a network.',pattern:'reticulate',concept:'Peepal leaf has reticulate venation. Such plants commonly show taproot type.',question:'Which pattern is seen in peepal leaf?',answer:'Network-like reticulate pattern',options:['Network-like reticulate pattern','Only straight parallel lines','No visible vein pattern']}
+];
+const scanKeys=['midrib','veins','edge','root'];
+function $(id){return document.getElementById(id)}
+function say(t){if(!Lab.voice)return;try{if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=.94;u.pitch=1.04;speechSynthesis.speak(u)}}catch(e){}}
+function coach(t){$('coach').textContent=t;say(t)}
+function log(t){$('log').innerHTML='<p>'+t+'</p>'+$('log').innerHTML}
+function start(){Lab.score=0;Lab.index=0;Lab.solved={};loadLeaf(0);coach('Leaf lab started. Scan midrib, veins, edge and root link. Then classify venation.')}
+function loadLeaf(i){
+ Lab.index=i;Lab.scans={};Lab.rootOpen=false;Lab.venation=null;Lab.root=null;
+ const leaf=leaves[i];
+ $('missionTitle').textContent='Leaf Scan '+(i+1)+': '+leaf.name;
+ $('labTag').textContent='Leaf ID: '+leaf.name;
+ $('storyText').textContent=leaf.story;
+ $('latestScan').textContent='Nothing scanned yet.';
+ $('leafNo').textContent=(i+1)+'/'+leaves.length;
+ $('concept').textContent='Leaf venation can help us predict root type in many plants.';
+ setLeafVisual(leaf);drawLeafButtons();drawChecklist();drawVenationOptions();drawRootOptions();drawReason(false);update();
+ log('<b>'+leaf.name+'</b> loaded.');
+ coach(leaf.story+' Start by scanning the leaf features.');
+}
+function setLeafVisual(leaf){
+ const el=$('leaf'); el.className='leaf '+(leaf.pattern==='parallel'?'parallel':'reticulate');
+ document.querySelectorAll('.scanBtn').forEach(b=>b.classList.remove('done'));
+ $('rootPanel').style.display='none';
+ const rootPanel=$('rootPanel');rootPanel.className='rootPanel '+(leaf.root==='Taproot'?'tap':'fibrous');
+ document.querySelectorAll('.rootLine').forEach(r=>r.style.display=leaf.root==='Taproot'?'block':'none');
+ document.querySelectorAll('.fib').forEach(r=>r.style.display=leaf.root==='Fibrous root'?'block':'none');
+ if(leaf.id==='banana'){document.documentElement.style.setProperty('--leafRot','8deg')}else if(leaf.id==='grass'){document.documentElement.style.setProperty('--leafRot','-6deg')}else{document.documentElement.style.setProperty('--leafRot','0deg')}
+}
+function drawLeafButtons(){let html='';leaves.forEach((l,idx)=>{html+='<button class="'+(idx===Lab.index?'active':'')+'" onclick="LeafLab.goToLeaf('+idx+')">'+l.icon+' '+l.name+'</button>'});$('leafButtons').innerHTML=html}
+function drawChecklist(){let html='';scanKeys.forEach(k=>{html+='<div class="choice '+(Lab.scans[k]?'correct':'')+'"><b>'+k.toUpperCase()+':</b> '+(Lab.scans[k]||'not scanned')+'</div>'});$('checklist').innerHTML=html}
+function drawVenationOptions(){let opts=['Reticulate','Parallel'];let html='';opts.forEach(o=>{html+='<button class="choice" onclick="LeafLab.pickVenation(&quot;'+o+'&quot;)"><b>'+o+'</b></button>'});$('venationOptions').innerHTML=html}
+function drawRootOptions(){let opts=['Taproot','Fibrous root'];let html='';opts.forEach(o=>{html+='<button class="choice" onclick="LeafLab.pickRoot(&quot;'+o+'&quot;)"><b>'+o+'</b></button>'});$('rootOptions').innerHTML=html}
+function drawReason(open){if(!open){$('questionText').textContent='Scan and classify to unlock the reasoning question.';$('reasonOptions').innerHTML='';return}const l=leaves[Lab.index];$('questionText').textContent=l.question;let html='';l.options.forEach(o=>{html+='<button class="choice" onclick="LeafLab.answerReason(&quot;'+o+'&quot;)">'+o+'</button>'});$('reasonOptions').innerHTML=html}
+function scannedAll(){return scanKeys.every(k=>Lab.scans[k])}
+function scan(k){
+ const l=leaves[Lab.index];
+ let msg='';
+ if(k==='midrib')msg='Main middle vein is visible.';
+ if(k==='veins')msg=l.pattern==='parallel'?'Veins run side by side in parallel lines.':'Veins branch and form a network pattern.';
+ if(k==='edge')msg='Leaf margin and shape observed.';
+ if(k==='root')msg='Root prediction link unlocked: '+l.root+'.';
+ Lab.scans[k]=msg;const btn=$(k+'Btn');if(btn)btn.classList.add('done');$('latestScan').textContent=k.toUpperCase()+': '+msg;Lab.score+=12;if(k==='root')rootScan(true);drawChecklist();update();coach(msg);log('<b>Scan:</b> '+l.name+' '+k+' — '+msg);
+}
+function rootScan(force){Lab.rootOpen=force?true:!Lab.rootOpen;$('rootPanel').style.display=Lab.rootOpen?'block':'none';coach(Lab.rootOpen?'Root scanner opened. Compare venation with root type.':'Root scanner hidden.')}
+function pickVenation(ans){
+ const l=leaves[Lab.index];document.querySelectorAll('#venationOptions .choice').forEach(b=>{if(b.textContent.trim()===l.venation)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==l.venation)b.classList.add('wrong')});
+ if(!scannedAll()){coach('Scan all features first, then classify venation.');return}
+ if(ans===l.venation){Lab.venation=ans;Lab.score+=55;coach('Correct. '+l.venation+' venation identified.');log('<b>Venation:</b> '+l.name+' — '+l.venation);checkUnlock()}else{Lab.score=Math.max(0,Lab.score-12);coach('Not correct. Look at the vein pattern again.')}
+ update();
+}
+function pickRoot(ans){
+ const l=leaves[Lab.index];document.querySelectorAll('#rootOptions .choice').forEach(b=>{if(b.textContent.trim()===l.root)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==l.root)b.classList.add('wrong')});
+ if(!scannedAll()){coach('Scan all features first, especially Root Link.');return}
+ if(ans===l.root){Lab.root=ans;Lab.score+=55;coach('Correct. Root prediction is '+l.root+'.');log('<b>Root prediction:</b> '+l.name+' — '+l.root);checkUnlock()}else{Lab.score=Math.max(0,Lab.score-12);coach('Not correct. Remember: reticulate often links to taproot; parallel often links to fibrous root.')}
+ update();
+}
+function checkUnlock(){const l=leaves[Lab.index];if(Lab.venation===l.venation&&Lab.root===l.root){$('concept').textContent=l.concept;drawReason(true);coach('Pattern link unlocked. '+l.concept)}}
+function answerReason(ans){
+ const l=leaves[Lab.index];document.querySelectorAll('#reasonOptions .choice').forEach(b=>{if(b.textContent.trim()===l.answer)b.classList.add('correct');else if(b.textContent.trim()===ans&&ans!==l.answer)b.classList.add('wrong')});
+ if(ans===l.answer){if(!Lab.solved[l.id])Lab.score+=70;Lab.solved[l.id]=true;$('concept').textContent=l.concept;coach('Reasoning correct. '+l.concept);log('<b>Reasoning solved:</b> '+l.name+' — '+l.concept);if(Object.keys(Lab.solved).length===leaves.length){$('certificate').style.display='block';coach('Excellent. You completed Leaf Venation Scanner 3D and unlocked the certificate.');$('certificate').scrollIntoView({behavior:'smooth'})}else{setTimeout(()=>{if(Lab.index<leaves.length-1)loadLeaf(Lab.index+1)},850)}}else{Lab.score=Math.max(0,Lab.score-10);coach('Reasoning not correct. Recheck the pattern and root link.')}update();
+}
+function update(){const sc=scanKeys.filter(k=>Lab.scans[k]).length;const meter=Math.round(sc/scanKeys.length*100);$('score').textContent=Lab.score;$('scanMeter').textContent=meter+'%';$('scanBar').style.width=meter+'%'}
+function goToLeaf(i){loadLeaf(i)}
+function hint(){const l=leaves[Lab.index];if(!scannedAll()){coach('Hint: tap Midrib, Veins, Leaf Edge and Root Link.');alert('Tap all four scan buttons.');return}coach('Hint: '+(l.pattern==='parallel'?'Parallel venation usually links with fibrous roots.':'Reticulate venation usually links with taproots.'));alert(l.pattern==='parallel'?'Parallel venation usually links with fibrous roots.':'Reticulate venation usually links with taproots.')}
+function toggleVoice(){Lab.voice=!Lab.voice;$('voiceBtn').textContent=Lab.voice?'🔊 Voice ON':'🔇 Voice OFF';if(Lab.voice)coach('Voice guide is on. Dr AI will guide the leaf scanner.')}
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&['s','u'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key==='F12')e.preventDefault()});
+window.LeafLab={start,scan,pickVenation,pickRoot,answerReason,rootScan,hint,toggleVoice,goToLeaf};
+start();
+})();
+</script>
+</body>
+</html>

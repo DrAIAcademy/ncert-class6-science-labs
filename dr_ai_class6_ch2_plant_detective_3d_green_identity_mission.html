@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plant Detective 3D | Dr AI Academy</title>
+<style>
+:root{
+  --panel:rgba(10,28,54,.96);--cyan:#64f4ff;--gold:#ffe066;--green:#8cffc1;--red:#ff8aa0;--text:#eef8ff;--muted:#b7cce5;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;font-family:Arial,Segoe UI,sans-serif;color:var(--text);background:radial-gradient(circle at 15% 10%,rgba(100,244,255,.16),transparent 26%),radial-gradient(circle at 85% 10%,rgba(255,224,102,.14),transparent 26%),linear-gradient(135deg,#061123,#123d82 60%,#071c34);overflow-x:hidden;-webkit-text-size-adjust:100%;user-select:none}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+.watermark{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}.wm{position:absolute;color:rgba(255,255,255,.055);font-size:clamp(28px,4vw,54px);font-weight:1000;transform:rotate(-24deg);white-space:nowrap}
+.cornerMark{position:fixed;right:12px;bottom:12px;z-index:1000;pointer-events:none;color:rgba(255,255,255,.78);background:rgba(4,13,24,.45);border:1px solid rgba(255,255,255,.2);padding:7px 10px;border-radius:999px;font-weight:900}
+.wrap{max-width:1460px;margin:auto;padding:12px;position:relative;z-index:1}.panel{background:var(--panel);border:1px solid rgba(100,244,255,.25);border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.hero{background:linear-gradient(180deg,rgba(18,61,130,.94),rgba(7,22,48,.97));position:relative;overflow:hidden}.hero:after{content:"🌿 🌳 🌺 🔍 🧬 📝";position:absolute;right:18px;bottom:14px;font-size:32px;letter-spacing:8px;opacity:.22}
+.logo{position:absolute;right:14px;top:14px;background:rgba(0,0,0,.28);border:1px solid rgba(100,244,255,.3);border-radius:16px;padding:8px 11px;text-align:right}.logo b{display:block}.logo span{color:var(--cyan);font-size:.74rem;font-weight:900}
+.badge{display:inline-block;background:rgba(100,244,255,.12);border:1px solid rgba(100,244,255,.25);border-radius:999px;color:var(--cyan);font-weight:900;padding:8px 12px;font-size:.78rem}
+h1{font-size:clamp(1.8rem,5vw,3.8rem);line-height:1.04;margin:10px 0 8px;max-width:1050px}.sub{line-height:1.55;color:var(--muted);max-width:1080px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.btn{border:0;border-radius:15px;padding:12px 14px;font-weight:900;font-size:15px;background:linear-gradient(135deg,var(--cyan),#d9fbff);color:#061123;min-height:46px}.btn.gold{background:linear-gradient(135deg,var(--gold),#fff3b0);color:#241400}.btn.dark{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff}
+.gameGrid{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:12px;align-items:start}
+.scene{position:relative;min-height:720px;border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#a7e8ff 0,#d9f7ff 28%,#86d177 29%,#4c8b3f 58%,#704422 59%,#3d2417 100%);border:1px solid rgba(255,255,255,.15);perspective:900px}
+.sceneTitle,.labTag{position:absolute;top:14px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:9px 12px;font-weight:900;z-index:8}.sceneTitle{left:14px}.labTag{right:14px}
+.greenhouse{position:absolute;left:5%;right:5%;top:76px;height:160px;border:3px solid rgba(255,255,255,.25);border-bottom:0;border-radius:28px 28px 0 0;background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.05));z-index:1}
+.ground{position:absolute;left:0;right:0;bottom:0;height:310px;background:repeating-linear-gradient(90deg,#5d351c 0,#5d351c 45px,#704522 46px,#704522 90px);z-index:1}
+.scanBeam{position:absolute;left:50%;top:140px;transform:translateX(-50%);width:260px;height:420px;background:linear-gradient(180deg,rgba(100,244,255,.06),rgba(100,244,255,.21),rgba(100,244,255,.03));clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);z-index:2;animation:scan 3s infinite ease-in-out;pointer-events:none}@keyframes scan{0%,100%{opacity:.35}50%{opacity:.82}}
+.plantStage{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:min(62vw,560px);height:440px;z-index:4}
+.soilPot{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);width:210px;height:86px;border-radius:24px 24px 36px 36px;background:linear-gradient(180deg,#ad6b36,#5c321c);border:3px solid rgba(255,255,255,.22);box-shadow:0 18px 26px rgba(0,0,0,.25)}
+.stem{position:absolute;left:50%;bottom:88px;transform:translateX(-50%);width:26px;height:235px;background:linear-gradient(90deg,#2f913b,#63d66d,#25762e);border-radius:999px;box-shadow:0 0 12px rgba(140,255,193,.18)}
+.stem.woody{width:46px;height:255px;background:linear-gradient(90deg,#704322,#b16a36,#4b2a16);border-radius:18px}
+.branch{position:absolute;height:16px;border-radius:999px;background:linear-gradient(90deg,#25762e,#63d66d)}
+.branch.woody{height:22px;background:linear-gradient(90deg,#5d3218,#9b5b2c)}
+.leaf{position:absolute;width:92px;height:44px;border-radius:50% 10% 50% 10%;background:linear-gradient(135deg,#58d96b,#207d31);border:1px solid rgba(255,255,255,.18);box-shadow:0 0 14px rgba(140,255,193,.18);display:grid;place-items:center;color:rgba(255,255,255,.65);font-weight:900;animation:leaf 3s infinite ease-in-out}@keyframes leaf{0%,100%{transform:rotate(var(--r)) scale(1)}50%{transform:rotate(var(--r)) scale(1.05)}}
+.flower{position:absolute;font-size:54px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.25));animation:flower 2.6s infinite ease-in-out}@keyframes flower{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+.rootView{position:absolute;left:50%;bottom:-22px;transform:translateX(-50%);width:250px;height:92px;opacity:.82;display:none}.rootLine{position:absolute;left:50%;top:0;width:8px;height:84px;border-radius:999px;background:#e9c18a;transform-origin:top}.fibRoot{position:absolute;top:4px;width:6px;height:78px;border-radius:999px;background:#e9c18a;transform-origin:top}
+.featureBtn{position:absolute;z-index:6;border:2px solid rgba(255,255,255,.22);background:rgba(255,224,102,.18);color:white;border-radius:999px;min-width:72px;min-height:42px;font-weight:900;box-shadow:0 0 18px rgba(255,224,102,.16)}.featureBtn.done{background:rgba(140,255,193,.18);border-color:rgba(140,255,193,.75)}
+#stemBtn{left:50%;bottom:260px;transform:translateX(40px)}#leafBtn{left:56%;top:175px}#flowerBtn{left:43%;top:78px}#heightBtn{left:26%;bottom:190px}#rootBtn{left:50%;bottom:76px;transform:translateX(-155px)}
+.speciesRack{position:absolute;left:4%;bottom:26px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7}.speciesRack h3,.scannerNote h3{margin:4px 0 8px;font-size:1rem}.speciesGrid{display:grid;gap:8px}.speciesGrid button{width:100%;text-align:left;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;font-weight:800}.speciesGrid button.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,224,102,.18)}
+.scannerNote{position:absolute;right:4%;bottom:26px;width:28%;min-width:180px;border-radius:18px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.14);padding:10px;z-index:7}.scannerNote p{margin:6px 0;color:var(--muted);font-size:.93rem;line-height:1.45}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:rgba(255,255,255,.08);border-radius:14px;padding:10px;text-align:center}.stat b{display:block;color:var(--cyan);font-size:22px}.bar{height:14px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:8px}.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--green))}
+.infoBox{background:linear-gradient(180deg,rgba(100,244,255,.10),rgba(255,255,255,.04));border:1px solid rgba(100,244,255,.20);border-radius:16px;padding:12px;line-height:1.55;margin-top:10px}#coach{background:rgba(255,224,102,.10);border:1px solid rgba(255,224,102,.25);border-radius:14px;padding:10px;font-weight:800;animation:pulse 2.8s ease-in-out infinite}@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(255,224,102,0)}50%{box-shadow:0 0 18px rgba(255,224,102,.18)}}
+.optionGrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}.choice{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:11px;color:#fff;text-align:left;min-height:54px}.choice.correct{border-color:rgba(140,255,193,.75);background:rgba(140,255,193,.16)}.choice.wrong{border-color:rgba(255,138,160,.75);background:rgba(255,138,160,.16)}.log{max-height:145px;overflow:auto;background:rgba(0,0,0,.18);border-radius:14px;padding:10px;font-size:.92rem}.log p{margin:0 0 8px}.cert{display:none;text-align:center;border:2px solid var(--gold)}.cert input{width:100%;max-width:360px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;text-align:center}.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted)}.footer a{color:var(--cyan);font-weight:900;text-decoration:none}
+@media(max-width:1080px){.gameGrid{grid-template-columns:1fr}.logo{position:static;width:max-content;margin:0 0 10px auto}.hero:after{display:none}.controls{display:grid;grid-template-columns:1fr 1fr}.btn{width:100%}.scene{min-height:980px}.plantStage{top:35%}.speciesRack,.scannerNote{position:relative;left:auto;right:auto;bottom:auto;width:calc(100% - 20px);margin:10px auto}.ground{height:390px}}
+@media(max-width:620px){.wrap{padding:6px}.panel{padding:10px;margin:8px 0;border-radius:16px}h1{font-size:1.46rem}h2{font-size:1.08rem;margin:8px 0}h3{font-size:1rem;margin:8px 0}.controls,.stats{grid-template-columns:1fr}.stat{padding:8px}.stat b{font-size:18px}.scene{min-height:1040px}.plantStage{width:88vw;height:400px}.featureBtn{font-size:.8rem;min-width:58px;min-height:38px}.speciesRack,.scannerNote{font-size:.9rem}.infoBox{font-size:.9rem}.stem{height:205px}.stem.woody{height:225px}.leaf{width:74px;height:36px}.flower{font-size:46px}}
+@media print{.hero,.gameGrid,.footer,.watermark,.cornerMark{display:none!important}.cert{display:block!important;color:#111;background:#fff}.cert input{color:#111;border:0}}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div class="watermark"><div class="wm" style="top:5%;left:-8%">Dr AI Academy</div><div class="wm" style="top:30%;left:35%">Dr AI Academy</div><div class="wm" style="top:55%;left:-5%">Dr AI Academy</div><div class="wm" style="top:78%;left:35%">Dr AI Academy</div></div>
+<div class="cornerMark">Dr AI Academy</div>
+<div class="wrap">
+<section class="panel hero">
+  <div class="logo"><b>Dr AI Academy</b><span>3D Plant Classification Lab</span></div>
+  <div class="badge">CLASS 6 • CHAPTER 2 • PLANT FEATURES AND GROUPING</div>
+  <h1>Plant Detective 3D:<br>The Green Identity Mission</h1>
+  <p class="sub">A guided 3D-style plant lab where students inspect height, stem, leaves, flower and roots to classify plants as herb, shrub, tree, creeper or climber. Dr AI builds observation skills for Olympiad, NEET foundation, and scientific reasoning.</p>
+  <div class="controls">
+    <button class="btn gold" onclick="PlantLab.start()">🎮 Start Plant Lab</button>
+    <button class="btn dark" onclick="PlantLab.xrayRoots()">🫘 Root X-Ray</button>
+    <button class="btn dark" onclick="PlantLab.hint()">💡 Dr AI Hint</button>
+    <button class="btn dark" onclick="PlantLab.toggleVoice()" id="voiceBtn">🔊 Voice ON</button>
+  </div>
+</section>
+
+<section class="gameGrid">
+<main class="panel">
+<h2 id="missionTitle">Plant Scan 1</h2>
+<div class="scene" id="scene">
+  <div class="sceneTitle">3D Greenhouse Scanner</div><div class="labTag" id="labTag">Plant ID: Grass</div><div class="greenhouse"></div><div class="scanBeam"></div><div class="ground"></div>
+  <div class="plantStage" id="plantStage">
+    <div class="stem" id="stem"></div>
+    <div class="branch" id="branch1" style="left:50%;bottom:250px;width:120px;transform:rotate(-25deg);transform-origin:left"></div>
+    <div class="branch" id="branch2" style="right:50%;bottom:220px;width:115px;transform:rotate(25deg);transform-origin:right"></div>
+    <div class="leaf" id="leaf1" style="--r:-25deg;left:58%;bottom:264px">◌</div>
+    <div class="leaf" id="leaf2" style="--r:25deg;right:58%;bottom:235px">◌</div>
+    <div class="leaf" id="leaf3" style="--r:8deg;left:53%;bottom:174px">◌</div>
+    <div class="flower" id="flower" style="left:45%;top:40px">🌺</div>
+    <div class="soilPot"></div>
+    <div class="rootView" id="rootView"><div class="rootLine" style="transform:rotate(0deg)"></div><div class="rootLine" style="transform:rotate(-24deg);height:68px"></div><div class="rootLine" style="transform:rotate(24deg);height:68px"></div></div>
+  </div>
+  <button class="featureBtn" id="stemBtn" onclick="PlantLab.scan('stem')">Stem</button>
+  <button class="featureBtn" id="leafBtn" onclick="PlantLab.scan('leaf')">Leaves</button>
+  <button class="featureBtn" id="flowerBtn" onclick="PlantLab.scan('flower')">Flower</button>
+  <button class="featureBtn" id="heightBtn" onclick="PlantLab.scan('height')">Height</button>
+  <button class="featureBtn" id="rootBtn" onclick="PlantLab.scan('root')">Root</button>
+  <div class="speciesRack"><h3>🌿 Plant Rack</h3><div class="speciesGrid" id="speciesButtons"></div></div>
+  <div class="scannerNote"><h3>📓 Scanner Notes</h3><p id="storyText">Select a plant and scan its features.</p><p><b>Latest scan:</b> <span id="latestScan">Nothing scanned yet.</span></p><p><b>Reasoning habit:</b> classify only after observing features.</p></div>
+</div>
+</main>
+
+<aside class="panel">
+<div class="stats"><div class="stat"><b id="score">0</b>Score</div><div class="stat"><b id="plantNo">1/5</b>Plant</div><div class="stat"><b id="scanMeter">0%</b>Scan</div></div><div class="bar"><span id="scanBar"></span></div>
+<div class="infoBox"><h3>🤖 Dr AI Live Guide</h3><p id="coach">Scan plant features, then classify the plant.</p></div>
+<div class="infoBox"><b>Step 1: Feature Scan Checklist</b><div id="checklist"></div></div>
+<div class="infoBox"><b>Step 2: Classify the Plant</b><div class="optionGrid" id="classOptions"></div></div>
+<div class="infoBox"><b>Step 3: Reasoning Challenge</b><p id="questionText">Scan features to unlock the question.</p><div class="optionGrid" id="reasonOptions"></div></div>
+<div class="infoBox"><b>Science Result</b><p id="concept">Observe height, stem and branching pattern to classify plants.</p></div>
+<div class="infoBox"><b>Mission Log</b><div class="log" id="log"></div></div>
+</aside>
+</section>
+
+<section class="panel cert" id="certificate"><div style="font-size:54px">🌿🔍🏅</div><h2>Certificate of Plant Detective Mastery</h2><p>This certifies that</p><input placeholder="Enter Student Name"><p>has completed <b>Plant Detective 3D: The Green Identity Mission</b></p><p>Skills: herbs • shrubs • trees • creepers • climbers • stem features • leaf/flower observation • root scan</p><p><b>Developed by Dr AI Academy</b></p><button class="btn gold" onclick="window.print()">Print / Save Certificate</button></section>
+<footer class="panel footer"><div>Developed by <b>Dr AI Academy</b> • Class 6 Science guided simulation</div><div><a href="https://courses.draiacademy.com" target="_blank">AI Courses @ Dr AI Academy</a></div></footer>
+</div>
+
+<script>
+(function(){
+const Lab={voice:true,score:0,index:0,scans:{},solved:{},rootVisible:false};
+const plants=[
+ {id:'grass',name:'Grass',icon:'🌾',type:'Herb',story:'Grass is a small plant with a soft green stem and narrow leaves.',features:{height:'short',stem:'soft green stem',leaf:'long narrow leaves',flower:'no clear flower in this view',root:'fibrous root'},concept:'Grass is herb-like because it is small and has a soft green stem.',question:'Why is grass grouped as a herb-like small plant?',answer:'Because it has a soft green stem',options:['Because it has a soft green stem','Because it has a thick woody trunk','Because it climbs using support'],style:'herb'},
+ {id:'rose',name:'Rose / Hibiscus Shrub',icon:'🌺',type:'Shrub',story:'This plant is bushy with a hard stem and branches near the base.',features:{height:'medium height',stem:'hard but not very thick',leaf:'broad leaves',flower:'bright flower',root:'taproot-like branching root'},concept:'Shrubs are medium-sized plants with hard stems and branches arising near the base.',question:'What feature makes it a shrub?',answer:'Branches arise near the base',options:['Branches arise near the base','It has fins','It has a single tall trunk only'],style:'shrub'},
+ {id:'mango',name:'Mango / Neem Tree',icon:'🌳',type:'Tree',story:'A tree is tall with a thick woody trunk and branches higher up.',features:{height:'tall',stem:'thick woody trunk',leaf:'many broad leaves',flower:'small flowers may appear seasonally',root:'deep taproot with branches'},concept:'Trees are tall plants with a thick woody stem and branches arising higher on the stem.',question:'Which feature is most tree-like?',answer:'Thick woody trunk',options:['Thick woody trunk','Soft green stem','Crawling on ground'],style:'tree'},
+ {id:'pumpkin',name:'Pumpkin Creeper',icon:'🎃',type:'Creeper',story:'Pumpkin has a weak stem that spreads along the ground.',features:{height:'low on ground',stem:'weak spreading stem',leaf:'large leaves',flower:'yellow flower',root:'shallow branching roots'},concept:'Creepers have weak stems that spread along the ground.',question:'Why is pumpkin called a creeper?',answer:'Its weak stem spreads on the ground',options:['Its weak stem spreads on the ground','It is a tall woody plant','It swims in water'],style:'creeper'},
+ {id:'pea',name:'Pea Climber',icon:'🫛',type:'Climber',story:'Pea has a weak stem but uses support to climb.',features:{height:'climbs upward with support',stem:'weak climbing stem',leaf:'compound leaves with tendril-like support',flower:'small flower',root:'taproot-like root'},concept:'Climbers have weak stems and need support to grow upward.',question:'What makes pea a climber?',answer:'It needs support to grow upward',options:['It needs support to grow upward','It has a thick trunk','It has no leaves'],style:'climber'}
+];
+const scanKeys=['height','stem','leaf','flower','root'];
+function $(id){return document.getElementById(id)}
+function say(t){if(!Lab.voice)return;try{if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-IN';u.rate=.94;u.pitch=1.04;speechSynthesis.speak(u)}}catch(e){}}
+function coach(t){$('coach').textContent=t;say(t)}
+function log(t){$('log').innerHTML='<p>'+t+'</p>'+$('log').innerHTML}
+function start(){Lab.score=0;Lab.index=0;Lab.solved={};loadPlant(0);coach('Plant lab started. Scan height, stem, leaves, flower and root, then classify the plant.')}
+function loadPlant(i){Lab.index=i;Lab.scans={};Lab.rootVisible=false;const p=plants[i];$('missionTitle').textContent='Plant Scan '+(i+1)+': '+p.name;$('labTag').textContent='Plant ID: '+p.name;$('storyText').textContent=p.story;$('latestScan').textContent='Nothing scanned yet.';$('plantNo').textContent=(i+1)+'/'+plants.length;$('concept').textContent='Observe height, stem and branching pattern to classify plants.';setPlantVisual(p);drawSpeciesButtons();drawChecklist();drawClassOptions();drawReasoning(false);update();log('<b>'+p.name+'</b> loaded.');coach(p.story+' Start by tapping feature buttons around the plant.')}
+function setPlantVisual(p){const stem=$('stem'),b1=$('branch1'),b2=$('branch2'),fl=$('flower'),rv=$('rootView');stem.className='stem';b1.className='branch';b2.className='branch';fl.style.display='block';rv.style.display='none';document.querySelectorAll('.featureBtn').forEach(x=>x.classList.remove('done'));if(p.style==='herb'){stem.style.height='155px';stem.style.width='18px';b1.style.display='none';b2.style.display='none';fl.style.display='none'}else if(p.style==='tree'){stem.className='stem woody';b1.className='branch woody';b2.className='branch woody';stem.style.height='270px';stem.style.width='52px';b1.style.display='block';b2.style.display='block';fl.style.display='none'}else if(p.style==='creeper'){stem.style.height='80px';stem.style.width='18px';b1.style.display='block';b2.style.display='block';b1.style.bottom='125px';b2.style.bottom='115px';fl.textContent='🌼'}else if(p.style==='climber'){stem.style.height='255px';stem.style.width='16px';b1.style.display='block';b2.style.display='block';fl.textContent='🌸'}else{stem.style.height='210px';stem.style.width='30px';b1.style.display='block';b2.style.display='block';fl.textContent='🌺'}document.querySelectorAll('.leaf').forEach((l,idx)=>{l.style.display='grid';l.textContent=p.style==='tree'?'☘':(p.style==='herb'?'|':'◌')});fl.textContent=p.icon==='🌺'?'🌺':fl.textContent}
+function drawSpeciesButtons(){let html='';plants.forEach((p,idx)=>{html+='<button class="'+(idx===Lab.index?'active':'')+'" onclick="PlantLab.goToPlant('+idx+')">'+p.icon+' '+p.name+'</button>'});$('speciesButtons').innerHTML=html}
+function drawChecklist(){let html='';scanKeys.forEach(k=>{html+='<div class="choice '+(Lab.scans[k]?'correct':'')+'"><b>'+k.toUpperCase()+':</b> '+(Lab.scans[k]||'not scanned')+'</div>'});$('checklist').innerHTML=html}
+function drawClassOptions(){const opts=['Herb','Shrub','Tree','Creeper','Climber'];let html='';opts.forEach(o=>{html+='<button class="choice" onclick="PlantLab.classify(&quot;'+o+'&quot;)"><b>'+o+'</b></button>'});$('classOptions').innerHTML=html}
+function drawReasoning(open){if(!open){$('questionText').textContent='Scan all features and classify to unlock the reasoning question.';$('reasonOptions').innerHTML='';return}const p=plants[Lab.index];$('questionText').textContent=p.question;let html='';p.options.forEach(o=>{html+='<button class="choice" onclick="PlantLab.answerReason(&quot;'+o+'&quot;)">'+o+'</button>'});$('reasonOptions').innerHTML=html}
+function scan(k){const p=plants[Lab.index];Lab.scans[k]=p.features[k];const btn=$(k+'Btn');if(btn)btn.classList.add('done');$('latestScan').textContent=k.toUpperCase()+': '+p.features[k];Lab.score+=10;if(k==='root')xrayRoots(true);drawChecklist();update();coach(k+' scan complete. '+p.features[k]);log('<b>Scan:</b> '+p.name+' '+k+' — '+p.features[k])}
+function xrayRoots(force){Lab.rootVisible=force?true:!Lab.rootVisible;$('rootView').style.display=Lab.rootVisible?'block':'none';coach(Lab.rootVisible?'Root X-Ray activated. Now observe root pattern.':'Root X-Ray hidden.')}
+function scannedAll(){return scanKeys.every(k=>Lab.scans[k])}
+function classify(ans){const p=plants[Lab.index];document.querySelectorAll('#classOptions .choice').forEach(btn=>{if(btn.textContent.trim()===p.type)btn.classList.add('correct');else if(btn.textContent.trim()===ans&&ans!==p.type)btn.classList.add('wrong')});if(!scannedAll()){coach('Scan all plant features before final classification.');return}if(ans===p.type){Lab.score+=70;$('concept').textContent=p.concept;coach('Correct classification. '+p.concept);log('<b>Classification:</b> '+p.name+' is a '+p.type+'.');drawReasoning(true)}else{Lab.score=Math.max(0,Lab.score-15);coach('Not correct. Compare height, stem and branch pattern again.')}update()}
+function answerReason(ans){const p=plants[Lab.index];document.querySelectorAll('#reasonOptions .choice').forEach(btn=>{if(btn.textContent.trim()===p.answer)btn.classList.add('correct');else if(btn.textContent.trim()===ans&&ans!==p.answer)btn.classList.add('wrong')});if(ans===p.answer){if(!Lab.solved[p.id])Lab.score+=60;Lab.solved[p.id]=true;$('concept').textContent=p.concept;coach('Reasoning correct. '+p.concept);log('<b>Reasoning solved:</b> '+p.name+' — '+p.concept);if(Object.keys(Lab.solved).length===plants.length){$('certificate').style.display='block';coach('Excellent. You completed Plant Detective 3D and unlocked the certificate.');$('certificate').scrollIntoView({behavior:'smooth'})}else{setTimeout(()=>{if(Lab.index<plants.length-1)loadPlant(Lab.index+1)},850)}}else{Lab.score=Math.max(0,Lab.score-10);coach('Reasoning not correct. Look again at the scanned feature.')}update()}
+function update(){const sc=scanKeys.filter(k=>Lab.scans[k]).length;const meter=Math.round(sc/scanKeys.length*100);$('score').textContent=Lab.score;$('scanMeter').textContent=meter+'%';$('scanBar').style.width=meter+'%'}
+function goToPlant(i){loadPlant(i)}
+function hint(){const p=plants[Lab.index];if(!scannedAll()){coach('Hint: tap every feature button: Height, Stem, Leaves, Flower and Root.');alert('Tap every feature button around the plant.');return}coach('Hint: classify by height, stem hardness and branching pattern. '+p.name+' is related to '+p.type+'.');alert('Use height, stem hardness and branching pattern.')}
+function toggleVoice(){Lab.voice=!Lab.voice;$('voiceBtn').textContent=Lab.voice?'🔊 Voice ON':'🔇 Voice OFF';if(Lab.voice)coach('Voice guide is on. Dr AI will guide the plant lab.')}
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&['s','u'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key==='F12')e.preventDefault()});window.PlantLab={start,scan,classify,answerReason,xrayRoots,hint,toggleVoice,goToPlant};start();
+})();
+</script>
+</body>
+</html>
